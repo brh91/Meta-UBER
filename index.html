@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meta Uber • Controle Financeiro</title>
+<title>Meta Uber • Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -13,28 +13,30 @@ body{
   margin:0;
   font-family:Poppins,sans-serif;
   min-height:100vh;
-  padding:20px;
   background:
     linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
     url("https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80");
   background-size:cover;
-  background-position:center;
+  padding:20px;
 }
 .container{
   max-width:1100px;
   margin:auto;
-  display:grid;
-  grid-template-columns:1fr;
+  display:none;
   gap:20px;
 }
-@media(min-width:900px){
-  .container{grid-template-columns:1fr 1fr}
-  .full{grid-column:1/-1}
-}
-header,.card{
+.login{
+  max-width:400px;
+  margin:auto;
   background:rgba(255,255,255,.95);
+  padding:25px;
   border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+.card,header{
+  background:rgba(255,255,255,.95);
   padding:20px;
+  border-radius:16px;
   box-shadow:0 10px 30px rgba(0,0,0,.15);
 }
 header{
@@ -43,12 +45,12 @@ header{
   align-items:center;
 }
 h1,h2{margin:0;color:#1e3c72}
-label{display:block;margin-top:12px}
+label{display:block;margin-top:10px}
 input{
   width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:10px;
+  padding:10px;
+  margin-top:5px;
+  border-radius:8px;
   border:1px solid #ccc;
 }
 button{
@@ -62,6 +64,9 @@ button{
   font-weight:600;
   cursor:pointer;
 }
+.logout{
+  background:#c0392b;
+}
 .stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -70,10 +75,10 @@ button{
 .stat{
   background:#f0f3fa;
   padding:15px;
-  border-radius:14px;
+  border-radius:12px;
   text-align:center;
 }
-.stat strong{display:block;font-size:1.4rem;color:#1e3c72}
+.stat strong{display:block;font-size:1.3rem}
 .alerta{color:#c0392b;font-weight:600}
 .ok{color:#27ae60;font-weight:600}
 table{
@@ -82,74 +87,73 @@ table{
   font-size:.85rem;
 }
 th,td{
-  border-bottom:1px solid #ddd;
   padding:8px;
+  border-bottom:1px solid #ddd;
   text-align:center;
 }
 th{background:#f0f3fa}
 .acoes button{
   width:auto;
   padding:6px 10px;
-  margin:2px;
 }
-canvas{width:100%;max-height:240px}
+canvas{width:100%;max-height:220px}
+@media(min-width:900px){
+  .container{display:grid;grid-template-columns:1fr 1fr}
+  .full{grid-column:1/-1}
+}
 </style>
 </head>
 
 <body>
-<div class="container">
+
+<!-- LOGIN -->
+<div class="login" id="loginBox">
+  <h2>Login / Cadastro</h2>
+  <label>Usuário</label>
+  <input id="loginUser">
+  <label>Senha</label>
+  <input id="loginPass" type="password">
+  <button onclick="entrar()">Entrar / Cadastrar</button>
+</div>
+
+<!-- SISTEMA -->
+<div class="container" id="app">
 
 <header class="full">
   <h1>Meta Uber 💰</h1>
-  <span>Controle inteligente de metas</span>
+  <button class="logout" onclick="logout()">Sair</button>
 </header>
 
 <div class="card">
   <h2>Configurações</h2>
-  <label>Meta Total (R$)</label>
+  <label>Meta total</label>
   <input id="meta" type="number" value="1500">
-
-  <label>Data Final</label>
+  <label>Data final</label>
   <input id="dataFinal" type="date" value="2026-02-06">
-
-  <label>Gasolina diária (R$)</label>
+  <label>Gasolina diária</label>
   <input id="gasolina" type="number" value="80">
 </div>
 
 <div class="card">
   <h2>Ganhos do Dia</h2>
-
   <label>Data</label>
   <input id="dataDia" type="date">
-
-  <label>06h às 10h</label>
-  <input id="manha" type="number">
-
-  <label>10h às 16h</label>
-  <input id="tarde" type="number">
-
-  <label>16h às 22h</label>
-  <input id="noite" type="number">
-
-  <h3 style="margin-top:20px">Gastos Extras</h3>
-
-  <label>Descrição (alimentação, café, etc)</label>
-  <input id="descGasto" type="text" placeholder="Ex: Almoço">
-
-  <label>Valor do gasto (R$)</label>
-  <input id="valorGasto" type="number">
-
+  <label>Manhã</label><input id="manha" type="number">
+  <label>Tarde</label><input id="tarde" type="number">
+  <label>Noite</label><input id="noite" type="number">
+  <label>Gasto extra</label><input id="extra" type="number">
+  <label>Descrição</label><input id="desc">
   <button onclick="salvarDia()">Salvar / Atualizar</button>
 </div>
 
 <div class="card full">
-  <h2>Resumo & Planejamento</h2>
-  <div class="stats" id="resultado"></div>
+  <h2>Resumo</h2>
+  <div class="stats" id="resumo"></div>
   <div id="planejamento"></div>
 </div>
 
 <div class="card full">
-  <h2>Gráfico de Progresso</h2>
+  <h2>Gráfico</h2>
   <canvas id="grafico"></canvas>
 </div>
 
@@ -158,12 +162,7 @@ canvas{width:100%;max-height:240px}
   <table>
     <thead>
       <tr>
-        <th>Data</th>
-        <th>Bruto</th>
-        <th>Gasolina</th>
-        <th>Gastos Extras</th>
-        <th>Líquido</th>
-        <th>Ações</th>
+        <th>Data</th><th>Bruto</th><th>Gas</th><th>Extra</th><th>Líquido</th><th>Ações</th>
       </tr>
     </thead>
     <tbody id="tabela"></tbody>
@@ -173,142 +172,100 @@ canvas{width:100%;max-height:240px}
 </div>
 
 <script>
-let dias = JSON.parse(localStorage.getItem("diasUber")) || [];
+let usuario = localStorage.getItem("usuarioLogado");
+let dias = {};
 let editando = null;
 
-function salvarLocal(){
-  localStorage.setItem("diasUber", JSON.stringify(dias));
+/* LOGIN */
+function entrar(){
+  const u = loginUser.value.trim();
+  const p = loginPass.value.trim();
+  if(!u||!p){alert("Preencha usuário e senha");return;}
+
+  const users = JSON.parse(localStorage.getItem("users")) || {};
+  if(!users[u]) users[u]=p;
+  if(users[u]!==p){alert("Senha incorreta");return;}
+
+  localStorage.setItem("users",JSON.stringify(users));
+  localStorage.setItem("usuarioLogado",u);
+  location.reload();
+}
+
+function logout(){
+  localStorage.removeItem("usuarioLogado");
+  location.reload();
+}
+
+/* SISTEMA */
+if(usuario){
+  loginBox.style.display="none";
+  app.style.display="grid";
+  dias = JSON.parse(localStorage.getItem("diasUber_"+usuario)) || {};
+  render();
+}else{
+  loginBox.style.display="block";
+}
+
+function salvar(){
+  localStorage.setItem("diasUber_"+usuario,JSON.stringify(dias));
 }
 
 function salvarDia(){
-  if(!dataDia.value){ alert("Informe a data"); return; }
+  if(!dataDia.value){alert("Informe a data");return;}
+  const m=+manha.value||0,t=+tarde.value||0,n=+noite.value||0;
+  const g=+gasolina.value,e=+extra.value||0;
+  const bruto=m+t+n,liq=bruto-g-e;
 
-  const manha = +manhaInput.value || 0;
-  const tarde = +tardeInput.value || 0;
-  const noite = +noiteInput.value || 0;
-  const gastoExtra = +valorGasto.value || 0;
-
-  const bruto = manha + tarde + noite;
-  const gas = +gasolina.value;
-  const liquido = bruto - gas - gastoExtra;
-
-  const registro = {
-    data: dataDia.value,
-    bruto,
-    gas,
-    gastoExtra,
-    descGasto: descGasto.value,
-    liquido
-  };
-
-  if(editando !== null){
-    dias[editando] = registro;
-    editando = null;
-  } else {
-    dias.push(registro);
-  }
-
-  salvarLocal();
-  limpar();
-  render();
+  dias[dataDia.value]={data:dataDia.value,bruto,gas:g,extra:e,liq};
+  salvar(); limpar(); render();
 }
 
-function editarDia(i){
-  const d = dias[i];
-  dataDia.value = d.data;
-  valorGasto.value = d.gastoExtra;
-  descGasto.value = d.descGasto || "";
-  editando = i;
+function editar(d){
+  const x=dias[d];
+  dataDia.value=x.data;
+  editando=d;
 }
 
-function excluirDia(i){
-  if(confirm("Excluir este dia?")){
-    dias.splice(i,1);
-    salvarLocal();
-    render();
-  }
+function excluir(d){
+  if(confirm("Excluir dia?")){delete dias[d];salvar();render();}
 }
 
 function limpar(){
-  dataDia.value = "";
-  manhaInput.value = "";
-  tardeInput.value = "";
-  noiteInput.value = "";
-  valorGasto.value = "";
-  descGasto.value = "";
+  dataDia.value=manha.value=tarde.value=noite.value=extra.value=desc.value="";
 }
 
 function render(){
-  tabela.innerHTML = "";
-  let total = 0;
-
-  dias.forEach((d,i)=>{
-    total += d.liquido;
-    tabela.innerHTML += `
-      <tr>
-        <td>${d.data}</td>
-        <td>R$ ${d.bruto.toFixed(2)}</td>
-        <td>R$ ${d.gas.toFixed(2)}</td>
-        <td title="${d.descGasto}">R$ ${d.gastoExtra.toFixed(2)}</td>
-        <td><strong>R$ ${d.liquido.toFixed(2)}</strong></td>
-        <td class="acoes">
-          <button onclick="editarDia(${i})">✏️</button>
-          <button onclick="excluirDia(${i})">🗑️</button>
-        </td>
-      </tr>`;
+  tabela.innerHTML="";
+  let total=0;
+  Object.values(dias).sort((a,b)=>a.data.localeCompare(b.data)).forEach(d=>{
+    total+=d.liq;
+    tabela.innerHTML+=`
+    <tr>
+      <td>${d.data}</td>
+      <td>${d.bruto.toFixed(2)}</td>
+      <td>${d.gas.toFixed(2)}</td>
+      <td>${d.extra.toFixed(2)}</td>
+      <td><b>${d.liq.toFixed(2)}</b></td>
+      <td class="acoes">
+        <button onclick="editar('${d.data}')">✏️</button>
+        <button onclick="excluir('${d.data}')">🗑️</button>
+      </td>
+    </tr>`;
   });
 
-  atualizarResumo(total);
-  desenharGrafico();
-}
+  const diasRest=Math.max(0,Math.ceil((new Date(dataFinal.value)-new Date())/86400000));
+  const falta=meta.value-total;
 
-function atualizarResumo(total){
-  const metaTotal = +meta.value;
-  const diasRest = Math.max(0, Math.ceil((new Date(dataFinal.value) - new Date()) / 86400000));
-  const falta = metaTotal - total;
-
-  resultado.innerHTML = `
-    <div class="stat">Total Líquido<strong>R$ ${total.toFixed(2)}</strong></div>
-    <div class="stat">Dias Restantes<strong>${diasRest}</strong></div>
+  resumo.innerHTML=`
+    <div class="stat">Total<strong>R$ ${total.toFixed(2)}</strong></div>
+    <div class="stat">Dias<strong>${diasRest}</strong></div>
     <div class="stat">Falta<strong>R$ ${Math.max(0,falta).toFixed(2)}</strong></div>
   `;
-
-  planejamento.innerHTML =
-    (diasRest > 0 && falta > 0)
-      ? `<p class="alerta">Meta diária necessária: R$ ${(falta/diasRest).toFixed(2)}</p>`
-      : `<p class="ok">🎉 Meta atingida!</p>`;
+  planejamento.innerHTML=(diasRest>0&&falta>0)?
+    `<p class="alerta">Meta diária: R$ ${(falta/diasRest).toFixed(2)}</p>`:
+    `<p class="ok">🎉 Meta atingida!</p>`;
 }
-
-function desenharGrafico(){
-  const ctx = grafico.getContext("2d");
-  ctx.clearRect(0,0,grafico.width,grafico.height);
-
-  const max = Math.max(...dias.map(d=>d.liquido),1);
-
-  dias.forEach((d,i)=>{
-    const x = (i+1)*(grafico.width/(dias.length+1));
-    const y = grafico.height - (d.liquido/max)*grafico.height;
-    ctx.fillStyle="#2a5298";
-    ctx.fillRect(x-12,y,24,grafico.height-y);
-  });
-}
-
-// ELEMENTOS
-const meta = document.getElementById("meta");
-const dataFinal = document.getElementById("dataFinal");
-const gasolina = document.getElementById("gasolina");
-const dataDia = document.getElementById("dataDia");
-const manhaInput = document.getElementById("manha");
-const tardeInput = document.getElementById("tarde");
-const noiteInput = document.getElementById("noite");
-const valorGasto = document.getElementById("valorGasto");
-const descGasto = document.getElementById("descGasto");
-const tabela = document.getElementById("tabela");
-const resultado = document.getElementById("resultado");
-const planejamento = document.getElementById("planejamento");
-const grafico = document.getElementById("grafico");
-
-render();
 </script>
+
 </body>
 </html>
