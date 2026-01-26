@@ -1,222 +1,251 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Meta Uber • Controle Financeiro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="UTF-8">
+<title>Meta Uber • Controle Financeiro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
-        url('https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      padding: 20px;
-      color: #222;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    header {
-      background: rgba(255,255,255,.95);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #1e3c72;
-    }
-
-    header span {
-      font-size: .95rem;
-      color: #555;
-    }
-
-    .card {
-      background: rgba(255,255,255,.95);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.15);
-    }
-
-    h2 {
-      margin-top: 0;
-      text-align: center;
-      font-weight: 600;
-      color: #1e3c72;
-    }
-
-    label {
-      display: block;
-      margin-top: 12px;
-      font-size: .9rem;
-      font-weight: 500;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: #fff;
-      cursor: pointer;
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,.25);
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .stat {
-      background: linear-gradient(135deg,#f5f7fa,#e2e6f0);
-      border-radius: 14px;
-      padding: 15px;
-      text-align: center;
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 1.3rem;
-      margin-top: 6px;
-      color: #1e3c72;
-    }
-
-    .alerta { color: #c0392b; font-weight: 600; }
-    .ok { color: #27ae60; font-weight: 600; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: .85rem;
-    }
-
-    th, td {
-      border-bottom: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-
-    th {
-      background: #f0f3fa;
-      font-weight: 600;
-    }
-
-    canvas {
-      width: 100%;
-      max-height: 240px;
-    }
-
-    @media (min-width: 900px) {
-      .container {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .full {
-        grid-column: 1 / -1;
-      }
-    }
-  </style>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Poppins,sans-serif;
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80");
+  background-size:cover;
+  background-position:center;
+  min-height:100vh;
+  padding:20px;
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:20px;
+}
+@media(min-width:900px){
+  .container{grid-template-columns:1fr 1fr}
+  .full{grid-column:1/-1}
+}
+.card,header{
+  background:rgba(255,255,255,.95);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+h1{margin:0;color:#1e3c72}
+h2{text-align:center;color:#1e3c72}
+label{display:block;margin-top:10px;font-size:.9rem}
+input{
+  width:100%;
+  padding:12px;
+  margin-top:5px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+button{
+  margin-top:15px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+}
+.stat{
+  background:#f0f3fa;
+  padding:15px;
+  border-radius:14px;
+  text-align:center;
+}
+.stat strong{display:block;font-size:1.4rem;color:#1e3c72}
+.alerta{color:#c0392b;font-weight:600}
+.ok{color:#27ae60;font-weight:600}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.85rem;
+}
+th,td{
+  border-bottom:1px solid #ddd;
+  padding:8px;
+  text-align:center;
+}
+th{background:#f0f3fa}
+canvas{width:100%;max-height:240px}
+</style>
 </head>
-<body>
 
+<body>
 <div class="container">
 
-  <header class="full">
-    <h1>Meta Uber 💰</h1>
-    <span>Controle inteligente de metas financeiras</span>
-  </header>
+<header class="full">
+  <h1>Meta Uber 💰</h1>
+  <span>Controle inteligente de metas</span>
+</header>
 
-  <div class="card">
-    <h2>Configurações</h2>
+<div class="card">
+  <h2>Configurações</h2>
+  <label>Meta Total (R$)</label>
+  <input id="meta" type="number" value="1500">
 
-    <label>Meta Total (R$)</label>
-    <input type="number" id="meta" value="1500">
+  <label>Data final</label>
+  <input id="dataFinal" type="date" value="2026-02-06">
 
-    <label>Data final (pagamento)</label>
-    <input type="date" id="dataFinal" value="2026-02-06">
+  <label>Gasolina diária (R$)</label>
+  <input id="gasolina" type="number" value="80">
+</div>
 
-    <label>Gasolina diária (R$)</label>
-    <input type="number" id="gasolina" value="80">
-  </div>
+<div class="card">
+  <h2>Ganhos do Dia</h2>
+  <label>Data</label>
+  <input id="dataDia" type="date">
 
-  <div class="card">
-    <h2>Ganhos do Dia</h2>
+  <label>06h às 10h</label>
+  <input id="manha" type="number">
 
-    <label>Data</label>
-    <input type="date" id="dataDia">
+  <label>10h às 16h</label>
+  <input id="tarde" type="number">
 
-    <label>06h às 10h</label>
-    <input type="number" id="manha">
+  <label>16h às 22h</label>
+  <input id="noite" type="number">
 
-    <label>10h às 16h</label>
-    <input type="number" id="tarde">
+  <button onclick="adicionarDia()">Salvar Dia</button>
+</div>
 
-    <label>16h às 22h</label>
-    <input type="number" id="noite">
+<div class="card full">
+  <h2>Resumo & Planejamento</h2>
+  <div class="stats" id="resultado"></div>
+  <div id="planejamento" style="margin-top:10px"></div>
+</div>
 
-    <button onclick="adicionarDia()">Salvar Dia</button>
-  </div>
+<div class="card full">
+  <h2>Gráfico de Progresso</h2>
+  <canvas id="grafico"></canvas>
+</div>
 
-  <div class="card full">
-    <h2>Resumo & Planejamento</h2>
-    <div class="stats" id="resultado"></div>
-    <div style="margin-top:10px" id="planejamento"></div>
-  </div>
+<div class="card full">
+  <h2>Histórico Diário</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th><th>Manhã</th><th>Tarde</th><th>Noite</th><th>Bruto</th><th>Líquido</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaHistorico"></tbody>
+  </table>
+</div>
 
-  <div class="card full">
-    <h2>Gráfico de Progresso</h2>
-    <canvas id="grafico"></canvas>
-  </div>
+</div>
 
-  <div class="card full">
-    <h2>Histórico Diário</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th><th>Manhã</th><th>Tarde</th><th>Noite</th><th>Bruto</th><th>Líquido</th>
+<script>
+// ===== PERSISTÊNCIA =====
+let dias = JSON.parse(localStorage.getItem("diasUber")) || [];
+
+function salvar(){
+  localStorage.setItem("diasUber",JSON.stringify(dias));
+}
+
+// ===== FUNÇÕES =====
+function adicionarDia(){
+  const data = dataDia.value;
+  if(!data){alert("Informe a data");return;}
+
+  const manha = +manhaInput.value||0;
+  const tarde = +tardeInput.value||0;
+  const noite = +noiteInput.value||0;
+  const gasolina = +gasolinaInput.value;
+
+  const bruto = manha+tarde+noite;
+  const liquido = bruto-gasolina;
+
+  dias.push({data,manha,tarde,noite,bruto,liquido});
+  salvar();
+  render();
+
+  manhaInput.value=tardeInput.value=noiteInput.value="";
+}
+
+function render(){
+  tabelaHistorico.innerHTML="";
+  let totalLiquido=0;
+
+  dias.forEach(d=>{
+    totalLiquido+=d.liquido;
+    tabelaHistorico.innerHTML+=`
+      <tr>
+        <td>${d.data}</td>
+        <td>${d.manha.toFixed(2)}</td>
+        <td>${d.tarde.toFixed(2)}</td>
+        <td>${d.noite.toFixed(2)}</td>
+        <td>${d.bruto.toFixed(2)}</td>
+        <td>${d.liquido.toFixed(2)}</td>
+      </tr>`;
+  });
+
+  const meta = +metaInput.value;
+  const hoje = new Date();
+  const fim = new Date(dataFinalInput.value);
+  const diasRest = Math.max(0,Math.ceil((fim-hoje)/(1000*60*60*24)));
+  const falta = meta-totalLiquido;
+
+  resultado.innerHTML=`
+    <div class="stat">Total acumulado<strong>R$ ${totalLiquido.toFixed(2)}</strong></div>
+    <div class="stat">Dias restantes<strong>${diasRest}</strong></div>
+    <div class="stat">Falta<strong>R$ ${Math.max(0,falta).toFixed(2)}</strong></div>
+  `;
+
+  planejamento.innerHTML = (diasRest>0 && falta>0)
+    ? `<p class="alerta">➡️ Nova meta diária: R$ ${(falta/diasRest).toFixed(2)}</p>`
+    : `<p class="ok">🎉 Meta atingida!</p>`;
+
+  desenharGrafico();
+}
+
+function desenharGrafico(){
+  const ctx=grafico.getContext("2d");
+  ctx.clearRect(0,0,grafico.width,grafico.height);
+  const max=Math.max(...dias.map(d=>d.liquido),1);
+  dias.forEach((d,i)=>{
+    const x=(i+1)*(grafico.width/(dias.length+1));
+    const y=grafico.height-(d.liquido/max)*grafico.height;
+    ctx.fillStyle="#2a5298";
+    ctx.fillRect(x-12,y,24,grafico.height-y);
+  });
+}
+
+// ===== ELEMENTOS =====
+const metaInput=document.getElementById("meta");
+const dataFinalInput=document.getElementById("dataFinal");
+const gasolinaInput=document.getElementById("gasolina");
+const dataDia=document.getElementById("dataDia");
+const manhaInput=document.getElementById("manha");
+const tardeInput=document.getElementById("tarde");
+const noiteInput=document.getElementById("noite");
+const tabelaHistorico=document.getElementById("tabelaHistorico");
+const resultado=document.getElementById("resultado");
+const planejamento=document.getElementById("planejamento");
+const grafico=document.getElementById("grafico");
+
+// ===== INIT =====
+render();
+</script>
+</body>
+</html>
