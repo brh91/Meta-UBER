@@ -87,12 +87,12 @@ th,td{
   text-align:center;
 }
 th{background:#f0f3fa}
-canvas{width:100%;max-height:240px}
 .acoes button{
   width:auto;
   padding:6px 10px;
   margin:2px;
 }
+canvas{width:100%;max-height:240px}
 </style>
 </head>
 
@@ -118,6 +118,7 @@ canvas{width:100%;max-height:240px}
 
 <div class="card">
   <h2>Ganhos do Dia</h2>
+
   <label>Data</label>
   <input id="dataDia" type="date">
 
@@ -129,6 +130,14 @@ canvas{width:100%;max-height:240px}
 
   <label>16h às 22h</label>
   <input id="noite" type="number">
+
+  <h3 style="margin-top:20px">Gastos Extras</h3>
+
+  <label>Descrição (alimentação, café, etc)</label>
+  <input id="descGasto" type="text" placeholder="Ex: Almoço">
+
+  <label>Valor do gasto (R$)</label>
+  <input id="valorGasto" type="number">
 
   <button onclick="salvarDia()">Salvar / Atualizar</button>
 </div>
@@ -149,8 +158,12 @@ canvas{width:100%;max-height:240px}
   <table>
     <thead>
       <tr>
-        <th>Data</th><th>Manhã</th><th>Tarde</th><th>Noite</th>
-        <th>Bruto</th><th>Líquido</th><th>Ações</th>
+        <th>Data</th>
+        <th>Bruto</th>
+        <th>Gasolina</th>
+        <th>Gastos Extras</th>
+        <th>Líquido</th>
+        <th>Ações</th>
       </tr>
     </thead>
     <tbody id="tabela"></tbody>
@@ -160,29 +173,33 @@ canvas{width:100%;max-height:240px}
 </div>
 
 <script>
-// ===== DADOS =====
 let dias = JSON.parse(localStorage.getItem("diasUber")) || [];
 let editando = null;
 
-// ===== SALVAR LOCAL =====
 function salvarLocal(){
   localStorage.setItem("diasUber", JSON.stringify(dias));
 }
 
-// ===== SALVAR / EDITAR =====
 function salvarDia(){
-  const data = dataDia.value;
-  if(!data){ alert("Informe a data"); return; }
+  if(!dataDia.value){ alert("Informe a data"); return; }
 
-  const gas = +gasolina.value;
   const manha = +manhaInput.value || 0;
   const tarde = +tardeInput.value || 0;
   const noite = +noiteInput.value || 0;
+  const gastoExtra = +valorGasto.value || 0;
 
   const bruto = manha + tarde + noite;
-  const liquido = bruto - gas;
+  const gas = +gasolina.value;
+  const liquido = bruto - gas - gastoExtra;
 
-  const registro = { data, manha, tarde, noite, bruto, liquido };
+  const registro = {
+    data: dataDia.value,
+    bruto,
+    gas,
+    gastoExtra,
+    descGasto: descGasto.value,
+    liquido
+  };
 
   if(editando !== null){
     dias[editando] = registro;
@@ -196,17 +213,14 @@ function salvarDia(){
   render();
 }
 
-// ===== EDITAR =====
 function editarDia(i){
   const d = dias[i];
   dataDia.value = d.data;
-  manhaInput.value = d.manha;
-  tardeInput.value = d.tarde;
-  noiteInput.value = d.noite;
+  valorGasto.value = d.gastoExtra;
+  descGasto.value = d.descGasto || "";
   editando = i;
 }
 
-// ===== EXCLUIR =====
 function excluirDia(i){
   if(confirm("Excluir este dia?")){
     dias.splice(i,1);
@@ -215,15 +229,15 @@ function excluirDia(i){
   }
 }
 
-// ===== LIMPAR FORM =====
 function limpar(){
   dataDia.value = "";
   manhaInput.value = "";
   tardeInput.value = "";
   noiteInput.value = "";
+  valorGasto.value = "";
+  descGasto.value = "";
 }
 
-// ===== RENDER =====
 function render(){
   tabela.innerHTML = "";
   let total = 0;
@@ -233,11 +247,10 @@ function render(){
     tabela.innerHTML += `
       <tr>
         <td>${d.data}</td>
-        <td>${d.manha.toFixed(2)}</td>
-        <td>${d.tarde.toFixed(2)}</td>
-        <td>${d.noite.toFixed(2)}</td>
-        <td>${d.bruto.toFixed(2)}</td>
-        <td>${d.liquido.toFixed(2)}</td>
+        <td>R$ ${d.bruto.toFixed(2)}</td>
+        <td>R$ ${d.gas.toFixed(2)}</td>
+        <td title="${d.descGasto}">R$ ${d.gastoExtra.toFixed(2)}</td>
+        <td><strong>R$ ${d.liquido.toFixed(2)}</strong></td>
         <td class="acoes">
           <button onclick="editarDia(${i})">✏️</button>
           <button onclick="excluirDia(${i})">🗑️</button>
@@ -249,27 +262,23 @@ function render(){
   desenharGrafico();
 }
 
-// ===== RESUMO =====
 function atualizarResumo(total){
-  const meta = +metaInput.value;
-  const hoje = new Date();
-  const fim = new Date(dataFinal.value);
-  const diasRest = Math.max(0, Math.ceil((fim - hoje)/86400000));
-  const falta = meta - total;
+  const metaTotal = +meta.value;
+  const diasRest = Math.max(0, Math.ceil((new Date(dataFinal.value) - new Date()) / 86400000));
+  const falta = metaTotal - total;
 
   resultado.innerHTML = `
-    <div class="stat">Total<strong>R$ ${total.toFixed(2)}</strong></div>
-    <div class="stat">Dias restantes<strong>${diasRest}</strong></div>
+    <div class="stat">Total Líquido<strong>R$ ${total.toFixed(2)}</strong></div>
+    <div class="stat">Dias Restantes<strong>${diasRest}</strong></div>
     <div class="stat">Falta<strong>R$ ${Math.max(0,falta).toFixed(2)}</strong></div>
   `;
 
   planejamento.innerHTML =
     (diasRest > 0 && falta > 0)
-      ? `<p class="alerta">Meta diária: R$ ${(falta/diasRest).toFixed(2)}</p>`
+      ? `<p class="alerta">Meta diária necessária: R$ ${(falta/diasRest).toFixed(2)}</p>`
       : `<p class="ok">🎉 Meta atingida!</p>`;
 }
 
-// ===== GRÁFICO =====
 function desenharGrafico(){
   const ctx = grafico.getContext("2d");
   ctx.clearRect(0,0,grafico.width,grafico.height);
@@ -284,20 +293,21 @@ function desenharGrafico(){
   });
 }
 
-// ===== ELEMENTOS =====
-const metaInput = document.getElementById("meta");
+// ELEMENTOS
+const meta = document.getElementById("meta");
 const dataFinal = document.getElementById("dataFinal");
 const gasolina = document.getElementById("gasolina");
 const dataDia = document.getElementById("dataDia");
 const manhaInput = document.getElementById("manha");
 const tardeInput = document.getElementById("tarde");
 const noiteInput = document.getElementById("noite");
+const valorGasto = document.getElementById("valorGasto");
+const descGasto = document.getElementById("descGasto");
 const tabela = document.getElementById("tabela");
 const resultado = document.getElementById("resultado");
 const planejamento = document.getElementById("planejamento");
 const grafico = document.getElementById("grafico");
 
-// ===== INIT =====
 render();
 </script>
 </body>
