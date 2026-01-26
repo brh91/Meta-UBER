@@ -12,12 +12,13 @@
 body{
   margin:0;
   font-family:Poppins,sans-serif;
+  min-height:100vh;
+  padding:20px;
   background:
     linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
     url("https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80");
   background-size:cover;
-  min-height:100vh;
-  padding:20px;
+  background-position:center;
 }
 .container{
   max-width:1100px;
@@ -36,33 +37,31 @@ header,.card{
   padding:20px;
   box-shadow:0 10px 30px rgba(0,0,0,.15);
 }
-header{display:flex;justify-content:space-between;align-items:center}
-h1{margin:0;color:#1e3c72}
-h2{text-align:center;color:#1e3c72}
-label{display:block;margin-top:10px}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+h1,h2{margin:0;color:#1e3c72}
+label{display:block;margin-top:12px}
 input{
   width:100%;
   padding:12px;
-  margin-top:5px;
+  margin-top:6px;
   border-radius:10px;
   border:1px solid #ccc;
 }
 button{
-  padding:8px 12px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-.salvar{
   width:100%;
   margin-top:15px;
   padding:14px;
+  border:none;
+  border-radius:12px;
   background:linear-gradient(135deg,#1e3c72,#2a5298);
   color:#fff;
   font-weight:600;
+  cursor:pointer;
 }
-.editar{background:#f1c40f}
-.excluir{background:#e74c3c;color:#fff}
 .stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -89,6 +88,11 @@ th,td{
 }
 th{background:#f0f3fa}
 canvas{width:100%;max-height:240px}
+.acoes button{
+  width:auto;
+  padding:6px 10px;
+  margin:2px;
+}
 </style>
 </head>
 
@@ -104,8 +108,10 @@ canvas{width:100%;max-height:240px}
   <h2>Configurações</h2>
   <label>Meta Total (R$)</label>
   <input id="meta" type="number" value="1500">
-  <label>Data final</label>
+
+  <label>Data Final</label>
   <input id="dataFinal" type="date" value="2026-02-06">
+
   <label>Gasolina diária (R$)</label>
   <input id="gasolina" type="number" value="80">
 </div>
@@ -114,13 +120,17 @@ canvas{width:100%;max-height:240px}
   <h2>Ganhos do Dia</h2>
   <label>Data</label>
   <input id="dataDia" type="date">
+
   <label>06h às 10h</label>
   <input id="manha" type="number">
+
   <label>10h às 16h</label>
   <input id="tarde" type="number">
+
   <label>16h às 22h</label>
   <input id="noite" type="number">
-  <button class="salvar" onclick="salvarDia()">Salvar / Atualizar</button>
+
+  <button onclick="salvarDia()">Salvar / Atualizar</button>
 </div>
 
 <div class="card full">
@@ -130,7 +140,7 @@ canvas{width:100%;max-height:240px}
 </div>
 
 <div class="card full">
-  <h2>Gráfico</h2>
+  <h2>Gráfico de Progresso</h2>
   <canvas id="grafico"></canvas>
 </div>
 
@@ -150,30 +160,35 @@ canvas{width:100%;max-height:240px}
 </div>
 
 <script>
+// ===== DADOS =====
 let dias = JSON.parse(localStorage.getItem("diasUber")) || [];
 let editando = null;
 
+// ===== SALVAR LOCAL =====
 function salvarLocal(){
-  localStorage.setItem("diasUber",JSON.stringify(dias));
+  localStorage.setItem("diasUber", JSON.stringify(dias));
 }
 
+// ===== SALVAR / EDITAR =====
 function salvarDia(){
   const data = dataDia.value;
-  if(!data){alert("Informe a data");return;}
+  if(!data){ alert("Informe a data"); return; }
 
-  const manha=+manhaInput.value||0;
-  const tarde=+tardeInput.value||0;
-  const noite=+noiteInput.value||0;
-  const gas=+gasolinaInput.value;
+  const gas = +gasolina.value;
+  const manha = +manhaInput.value || 0;
+  const tarde = +tardeInput.value || 0;
+  const noite = +noiteInput.value || 0;
 
-  const bruto=manha+tarde+noite;
-  const liquido=bruto-gas;
+  const bruto = manha + tarde + noite;
+  const liquido = bruto - gas;
 
-  if(editando!==null){
-    dias[editando]={data,manha,tarde,noite,bruto,liquido};
-    editando=null;
+  const registro = { data, manha, tarde, noite, bruto, liquido };
+
+  if(editando !== null){
+    dias[editando] = registro;
+    editando = null;
   } else {
-    dias.push({data,manha,tarde,noite,bruto,liquido});
+    dias.push(registro);
   }
 
   salvarLocal();
@@ -181,16 +196,18 @@ function salvarDia(){
   render();
 }
 
-function editar(i){
-  const d=dias[i];
-  dataDia.value=d.data;
-  manhaInput.value=d.manha;
-  tardeInput.value=d.tarde;
-  noiteInput.value=d.noite;
-  editando=i;
+// ===== EDITAR =====
+function editarDia(i){
+  const d = dias[i];
+  dataDia.value = d.data;
+  manhaInput.value = d.manha;
+  tardeInput.value = d.tarde;
+  noiteInput.value = d.noite;
+  editando = i;
 }
 
-function excluir(i){
+// ===== EXCLUIR =====
+function excluirDia(i){
   if(confirm("Excluir este dia?")){
     dias.splice(i,1);
     salvarLocal();
@@ -198,74 +215,89 @@ function excluir(i){
   }
 }
 
+// ===== LIMPAR FORM =====
 function limpar(){
-  dataDia.value="";
-  manhaInput.value="";
-  tardeInput.value="";
-  noiteInput.value="";
+  dataDia.value = "";
+  manhaInput.value = "";
+  tardeInput.value = "";
+  noiteInput.value = "";
 }
 
+// ===== RENDER =====
 function render(){
-  tabela.innerHTML="";
-  let total=0;
+  tabela.innerHTML = "";
+  let total = 0;
 
   dias.forEach((d,i)=>{
-    total+=d.liquido;
-    tabela.innerHTML+=`
+    total += d.liquido;
+    tabela.innerHTML += `
       <tr>
         <td>${d.data}</td>
-        <td>${d.manha}</td>
-        <td>${d.tarde}</td>
-        <td>${d.noite}</td>
-        <td>${d.bruto}</td>
-        <td>${d.liquido}</td>
-        <td>
-          <button class="editar" onclick="editar(${i})">✏️</button>
-          <button class="excluir" onclick="excluir(${i})">🗑️</button>
+        <td>${d.manha.toFixed(2)}</td>
+        <td>${d.tarde.toFixed(2)}</td>
+        <td>${d.noite.toFixed(2)}</td>
+        <td>${d.bruto.toFixed(2)}</td>
+        <td>${d.liquido.toFixed(2)}</td>
+        <td class="acoes">
+          <button onclick="editarDia(${i})">✏️</button>
+          <button onclick="excluirDia(${i})">🗑️</button>
         </td>
       </tr>`;
   });
 
-  const meta=+metaInput.value;
-  const diasRest=Math.max(0,Math.ceil((new Date(dataFinal.value)-new Date())/86400000));
-  const falta=meta-total;
-
-  resultado.innerHTML=`
-    <div class="stat">Total<strong>R$ ${total}</strong></div>
-    <div class="stat">Dias restantes<strong>${diasRest}</strong></div>
-    <div class="stat">Falta<strong>R$ ${Math.max(0,falta)}</strong></div>`;
-
-  planejamento.innerHTML=(diasRest>0 && falta>0)
-    ? `<p class="alerta">Meta diária: R$ ${(falta/diasRest).toFixed(2)}</p>`
-    : `<p class="ok">🎉 Meta atingida!</p>`;
-
-  graficoDraw();
+  atualizarResumo(total);
+  desenharGrafico();
 }
 
-function graficoDraw(){
-  const ctx=grafico.getContext("2d");
+// ===== RESUMO =====
+function atualizarResumo(total){
+  const meta = +metaInput.value;
+  const hoje = new Date();
+  const fim = new Date(dataFinal.value);
+  const diasRest = Math.max(0, Math.ceil((fim - hoje)/86400000));
+  const falta = meta - total;
+
+  resultado.innerHTML = `
+    <div class="stat">Total<strong>R$ ${total.toFixed(2)}</strong></div>
+    <div class="stat">Dias restantes<strong>${diasRest}</strong></div>
+    <div class="stat">Falta<strong>R$ ${Math.max(0,falta).toFixed(2)}</strong></div>
+  `;
+
+  planejamento.innerHTML =
+    (diasRest > 0 && falta > 0)
+      ? `<p class="alerta">Meta diária: R$ ${(falta/diasRest).toFixed(2)}</p>`
+      : `<p class="ok">🎉 Meta atingida!</p>`;
+}
+
+// ===== GRÁFICO =====
+function desenharGrafico(){
+  const ctx = grafico.getContext("2d");
   ctx.clearRect(0,0,grafico.width,grafico.height);
-  const max=Math.max(...dias.map(d=>d.liquido),1);
+
+  const max = Math.max(...dias.map(d=>d.liquido),1);
+
   dias.forEach((d,i)=>{
-    const x=(i+1)*(grafico.width/(dias.length+1));
-    const y=grafico.height-(d.liquido/max)*grafico.height;
+    const x = (i+1)*(grafico.width/(dias.length+1));
+    const y = grafico.height - (d.liquido/max)*grafico.height;
     ctx.fillStyle="#2a5298";
-    ctx.fillRect(x-10,y,20,grafico.height-y);
+    ctx.fillRect(x-12,y,24,grafico.height-y);
   });
 }
 
-const metaInput=meta;
-const dataFinal=dataFinal;
-const gasolinaInput=gasolina;
-const dataDia=dataDia;
-const manhaInput=manha;
-const tardeInput=tarde;
-const noiteInput=noite;
-const tabela=document.getElementById("tabela");
-const resultado=document.getElementById("resultado");
-const planejamento=document.getElementById("planejamento");
-const grafico=document.getElementById("grafico");
+// ===== ELEMENTOS =====
+const metaInput = document.getElementById("meta");
+const dataFinal = document.getElementById("dataFinal");
+const gasolina = document.getElementById("gasolina");
+const dataDia = document.getElementById("dataDia");
+const manhaInput = document.getElementById("manha");
+const tardeInput = document.getElementById("tarde");
+const noiteInput = document.getElementById("noite");
+const tabela = document.getElementById("tabela");
+const resultado = document.getElementById("resultado");
+const planejamento = document.getElementById("planejamento");
+const grafico = document.getElementById("grafico");
 
+// ===== INIT =====
 render();
 </script>
 </body>
