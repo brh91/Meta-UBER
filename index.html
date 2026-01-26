@@ -1,73 +1,179 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Meta Uber</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 10px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 { text-align: center; }
-        label {
-            display: block;
-            margin-top: 12px;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            margin-top: 15px;
-            padding: 14px;
-            font-size: 16px;
-            background: #2e86de;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .resultado, .historico {
-            margin-top: 20px;
-            background: #eef3f7;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .ok { color: green; font-weight: bold; }
-        .alerta { color: red; font-weight: bold; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 6px;
-            text-align: center;
-        }
-        th { background: #dde6ed; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Meta Uber • Controle Financeiro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+        url('https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 20px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    header {
+      background: rgba(255,255,255,.95);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1e3c72;
+    }
+
+    header span {
+      font-size: .95rem;
+      color: #555;
+    }
+
+    .card {
+      background: rgba(255,255,255,.95);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    }
+
+    h2 {
+      margin-top: 0;
+      text-align: center;
+      font-weight: 600;
+      color: #1e3c72;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: .9rem;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat {
+      background: linear-gradient(135deg,#f5f7fa,#e2e6f0);
+      border-radius: 14px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-top: 6px;
+      color: #1e3c72;
+    }
+
+    .alerta { color: #c0392b; font-weight: 600; }
+    .ok { color: #27ae60; font-weight: 600; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: .85rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background: #f0f3fa;
+      font-weight: 600;
+    }
+
+    canvas {
+      width: 100%;
+      max-height: 240px;
+    }
+
+    @media (min-width: 900px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
+
+  <header class="full">
     <h1>Meta Uber 💰</h1>
+    <span>Controle inteligente de metas financeiras</span>
+  </header>
+
+  <div class="card">
+    <h2>Configurações</h2>
 
     <label>Meta Total (R$)</label>
     <input type="number" id="meta" value="1500">
@@ -77,102 +183,40 @@
 
     <label>Gasolina diária (R$)</label>
     <input type="number" id="gasolina" value="80">
+  </div>
 
+  <div class="card">
     <h2>Ganhos do Dia</h2>
 
     <label>Data</label>
     <input type="date" id="dataDia">
 
-    <label>06h às 10h (R$)</label>
+    <label>06h às 10h</label>
     <input type="number" id="manha">
 
-    <label>10h às 16h (R$)</label>
+    <label>10h às 16h</label>
     <input type="number" id="tarde">
 
-    <label>16h às 22h (R$)</label>
+    <label>16h às 22h</label>
     <input type="number" id="noite">
 
     <button onclick="adicionarDia()">Salvar Dia</button>
+  </div>
 
-    <div class="resultado" id="resultado"></div>
+  <div class="card full">
+    <h2>Resumo & Planejamento</h2>
+    <div class="stats" id="resultado"></div>
+    <div style="margin-top:10px" id="planejamento"></div>
+  </div>
 
-    <div class="historico">
-        <h2>Histórico</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Manhã</th>
-                    <th>Tarde</th>
-                    <th>Noite</th>
-                    <th>Bruto</th>
-                    <th>Líquido</th>
-                </tr>
-            </thead>
-            <tbody id="tabelaHistorico"></tbody>
-        </table>
-    </div>
-</div>
+  <div class="card full">
+    <h2>Gráfico de Progresso</h2>
+    <canvas id="grafico"></canvas>
+  </div>
 
-<script>
-let totalLiquido = 0;
-
-function adicionarDia() {
-    const meta = Number(metaInput.value);
-    const gasolina = Number(gasolinaInput.value);
-    const data = dataDia.value;
-
-    const manha = Number(manhaInput.value) || 0;
-    const tarde = Number(tardeInput.value) || 0;
-    const noite = Number(noiteInput.value) || 0;
-
-    if (!data) {
-        alert("Informe a data");
-        return;
-    }
-
-    const bruto = manha + tarde + noite;
-    const liquido = bruto - gasolina;
-    totalLiquido += liquido;
-
-    tabelaHistorico.innerHTML += `
+  <div class="card full">
+    <h2>Histórico Diário</h2>
+    <table>
+      <thead>
         <tr>
-            <td>${data}</td>
-            <td>R$ ${manha.toFixed(2)}</td>
-            <td>R$ ${tarde.toFixed(2)}</td>
-            <td>R$ ${noite.toFixed(2)}</td>
-            <td>R$ ${bruto.toFixed(2)}</td>
-            <td>R$ ${liquido.toFixed(2)}</td>
-        </tr>
-    `;
-
-    const diasRestantes = Math.ceil(
-        (new Date(dataFinal.value) - new Date()) / (1000 * 60 * 60 * 24)
-    );
-
-    const falta = meta - totalLiquido;
-
-    resultado.innerHTML = `
-        <p>Total líquido: <strong>R$ ${totalLiquido.toFixed(2)}</strong></p>
-        <p>Dias restantes: <strong>${diasRestantes}</strong></p>
-        ${falta > 0 
-            ? `<p class="alerta">Faltam R$ ${falta.toFixed(2)}</p>`
-            : `<p class="ok">🎉 Meta atingida!</p>`
-        }
-    `;
-
-    manhaInput.value = tardeInput.value = noiteInput.value = "";
-}
-
-const metaInput = document.getElementById("meta");
-const gasolinaInput = document.getElementById("gasolina");
-const dataDia = document.getElementById("dataDia");
-const manhaInput = document.getElementById("manha");
-const tardeInput = document.getElementById("tarde");
-const noiteInput = document.getElementById("noite");
-const tabelaHistorico = document.getElementById("tabelaHistorico");
-const resultado = document.getElementById("resultado");
-</script>
-
-</body>
-</html>
+          <th>Data</th><th>Manhã</th><th>Tarde</th><th>Noite</th><th>Bruto</th><th>Líquido</th>
