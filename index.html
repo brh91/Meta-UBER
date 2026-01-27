@@ -1,159 +1,287 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Meta Uber 💰</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Poppins;background:#0f2027;color:#fff}
-.hidden{display:none}
-.app{display:flex;min-height:100vh}
-.sidebar{width:240px;background:#111;padding:20px}
-.sidebar h2{margin:0 0 20px;font-size:20px;text-align:center}
-.sidebar button{width:100%;margin-bottom:10px;padding:12px;border:none;border-radius:10px;font-size:15px;cursor:pointer;background:#1f4068;color:#fff}
-.sidebar button:hover{background:#2a6fdb}
-.main{flex:1;padding:20px}
-.card{background:#fff;color:#000;padding:20px;border-radius:16px;margin-bottom:15px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
-.stat{background:#f1f3f6;border-radius:12px;padding:15px;text-align:center}
-.stat strong{display:block;font-size:22px;margin-top:6px}
-input{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
-button.action{background:#27ae60;color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;margin-top:10px;cursor:pointer}
-button.action:hover{background:#2ecc71}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{border-bottom:1px solid #ddd;padding:8px;text-align:center}
-th{background:#eee}
-@media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;display:flex;gap:10px;overflow:auto}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meta Uber 💰</title>
+
+  <!-- ================== ESTILOS GERAIS ================== -->
+  <style>
+    /* RESET */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+    }
+
+    /* ================== MENU LATERAL ================== */
+    aside {
+      width: 240px;
+      background: rgba(0,0,0,0.35);
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+    }
+
+    aside h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    aside button {
+      margin: 6px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #1f3b5b;
+      color: #fff;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    aside button:hover { background: #2c5a88; }
+
+    /* ================== CONTEÚDO ================== */
+    main {
+      flex: 1;
+      padding: 20px;
+      display: none;
+    }
+
+    section { display: none; }
+    section.active { display: block; }
+
+    /* ================== CARDS RESUMO ================== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
+
+    .card h3 { font-size: 14px; opacity: 0.9; }
+    .card p { font-size: 26px; margin-top: 8px; font-weight: bold; }
+
+    /* ================== PROGRESSO ================== */
+    .progress {
+      width: 100%;
+      height: 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .progress div {
+      height: 100%;
+      background: linear-gradient(90deg,#00ffcc,#00c6ff);
+      width: 0%;
+    }
+
+    /* ================== FORMULÁRIOS ================== */
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .btn {
+      background: #00c6ff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* ================== TABELA ================== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+    }
+
+    /* ================== LOGIN ================== */
+    #loginBox {
+      margin: auto;
+      background: rgba(255,255,255,0.12);
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+    }
+
+    /* ================== RESPONSIVO ================== */
+    @media(max-width:768px){
+      aside { width: 100px; }
+      aside button { font-size: 12px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginBox" class="card" style="max-width:400px;margin:40px auto">
-<h2>🔐 Login</h2>
-<input id="loginUser" placeholder="Usuário">
-<input id="loginPass" type="password" placeholder="Senha">
-<button class="action" onclick="login()">Entrar</button>
-<button onclick="mostrarCadastro()">📝 Cadastrar</button>
-<button onclick="resetSenha()">🔄 Resetar senha</button>
-<p id="loginMsg"></p>
+<!-- ================== LOGIN ================== -->
+<div id="loginBox">
+  <h2>🔐 Login</h2>
+  <input id="user" placeholder="Usuário" />
+  <input id="pass" type="password" placeholder="Senha" />
+  <button class="btn" onclick="login()">Entrar</button>
+  <button onclick="register()">Cadastrar</button>
 </div>
 
-<!-- CADASTRO -->
-<div id="cadastroBox" class="card hidden" style="max-width:400px;margin:40px auto">
-<h2>📝 Cadastro</h2>
-<input id="cadUser" placeholder="Usuário">
-<input id="cadNome" placeholder="Nome completo">
-<input id="cadTel" placeholder="Celular">
-<input id="cadEmail" placeholder="E-mail">
-<input id="cadPass" type="password" placeholder="Senha">
-<button class="action" onclick="cadastrar()">Cadastrar</button>
-<button onclick="voltarLogin()">⬅ Voltar</button>
-<p id="cadMsg"></p>
-</div>
+<!-- ================== MENU ================== -->
+<aside id="menu">
+  <h2>💰 Meta Uber</h2>
+  <button onclick="show('resumo')">📊 Resumo</button>
+  <button onclick="show('ganhos')">🕒 Ganhos do Dia</button>
+  <button onclick="show('graficos')">📈 Gráficos</button>
+  <button onclick="show('historico')">📁 Histórico</button>
+  <button onclick="logout()">🚪 Sair</button>
+</aside>
 
-<!-- APP -->
-<div id="app" class="app hidden">
+<!-- ================== MAIN ================== -->
+<main id="app">
 
-<div class="sidebar">
-<h2>💰 Meta Uber</h2>
-<button onclick="show('config')">⚙️ Configurações</button>
-<button onclick="show('resumo')">📊 Resumo</button>
-<button onclick="show('ganhos')">💵 Ganhos do Dia</button>
-<button onclick="show('graficos')">📈 Gráficos</button>
-<button onclick="show('historico')">🗂️ Histórico</button>
-<button onclick="logout()">🚪 Sair</button>
-</div>
+  <!-- ================== RESUMO ================== -->
+  <section id="resumo" class="active">
+    <div class="cards">
+      <div class="card"><h3>Total Acumulado</h3><p id="total">R$ 0</p></div>
+      <div class="card"><h3>Falta p/ Meta</h3><p id="falta">R$ 0</p></div>
+      <div class="card"><h3>Meta Diária</h3><p id="diaria">R$ 0</p></div>
+    </div>
+    <div class="progress"><div id="barra"></div></div>
+  </section>
 
-<div class="main">
+  <!-- ================== GANHOS ================== -->
+  <section id="ganhos">
+    <h2>🕒 Ganhos do Dia</h2>
+    <input type="date" id="data" />
+    <select id="turno">
+      <option>Manhã</option>
+      <option>Tarde</option>
+      <option>Noite</option>
+    </select>
+    <input type="number" id="valor" placeholder="Ganho" />
+    <input type="number" id="gasto" placeholder="Gastos" />
+    <button class="btn" onclick="salvarGanho()">Salvar / Atualizar</button>
+  </section>
 
-<!-- CONFIG -->
-<div id="config" class="card">
-<h3>⚙️ Configurações da Meta</h3>
-<label>Meta total (R$)</label>
-<input id="metaTotal" type="number" value="1500">
-<label>Data final</label>
-<input id="dataFinal" type="date">
-<label>Investimento diário (gasolina)</label>
-<input id="custoDiario" type="number" value="80">
-<button class="action" onclick="salvarConfig()">Salvar Configurações</button>
-</div>
+  <!-- ================== GRÁFICOS ================== -->
+  <section id="graficos">
+    <canvas id="chart"></canvas>
+  </section>
 
-<!-- RESUMO -->
-<div id="resumo" class="hidden">
-<div class="stats">
-<div class="stat">💰 Total Parcial<strong id="totalParcial">0</strong></div>
-<div class="stat">🎯 Falta p/ Meta<strong id="faltaMeta">0</strong></div>
-<div class="stat">🔥 Meta Diária Hoje<strong id="metaHoje">0</strong></div>
-<div class="stat">📆 Meta Próx. Dias<strong id="metaProx">0</strong></div>
-</div>
-</div>
+  <!-- ================== HISTÓRICO ================== -->
+  <section id="historico">
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Turno</th><th>Ganho</th><th>Gasto</th><th>Ação</th></tr>
+      </thead>
+      <tbody id="hist"></tbody>
+    </table>
+  </section>
+</main>
 
-<!-- GANHOS -->
-<div id="ganhos" class="card hidden">
-<h3>💵 Ganhos do Dia</h3>
-<label>Data</label>
-<input id="ganhoData" type="date">
-<label>Valor bruto do dia</label>
-<input id="ganhoValor" type="number">
-<label>Gastos extras (alimentação, etc)</label>
-<input id="ganhoExtra" type="number" value="0">
-<button class="action" onclick="salvarGanho()">Salvar Dia</button>
-</div>
-
-<!-- GRAFICOS -->
-<div id="graficos" class="card hidden">
-<canvas id="grafico"></canvas>
-</div>
-
-<!-- HISTORICO -->
-<div id="historico" class="card hidden">
-<h3>🗂️ Histórico</h3>
-<table id="tabela"></table>
-<br>
-<button onclick="exportarExcel()">📤 Excel</button>
-<button onclick="exportarPDF()">📄 PDF</button>
-</div>
-
-</div>
-</div>
-
+<!-- ================== SCRIPT ================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let usuario=null;
+/* =====================================================
+   SEGURANÇA BÁSICA
+   - Dados isolados por usuário
+   - Senha armazenada como hash simples
+===================================================== */
 
-function show(id){document.querySelectorAll('.main>div').forEach(d=>d.classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+let currentUser = null;
 
-function mostrarCadastro(){loginBox.classList.add('hidden');cadastroBox.classList.remove('hidden')}
-function voltarLogin(){cadastroBox.classList.add('hidden');loginBox.classList.remove('hidden')}
+function hash(t){ return btoa(t); }
 
-function cadastrar(){let u=cadUser.value;let users=JSON.parse(localStorage.getItem('users')||'{}');if(users[u]){cadMsg.innerText='Usuário já existe';return}users[u]={senha:cadPass.value,config:{meta:1500,custo:80,data:''},dados:[]};localStorage.setItem('users',JSON.stringify(users));cadMsg.innerText='Cadastro realizado'}
+function login(){
+  const u = user.value, p = pass.value;
+  const db = JSON.parse(localStorage.getItem('users')||'{}');
+  if(!db[u] || db[u].pass !== hash(p)) return alert('Login inválido');
+  currentUser = u;
+  iniciar();
+}
 
-function login(){let users=JSON.parse(localStorage.getItem('users')||'{}');if(users[loginUser.value]?.senha===loginPass.value){usuario=loginUser.value;loginBox.classList.add('hidden');app.classList.remove('hidden');carregar()}else loginMsg.innerText='Login inválido'}
+function register(){
+  const u = user.value, p = pass.value;
+  const db = JSON.parse(localStorage.getItem('users')||'{}');
+  if(db[u]) return alert('Usuário já existe');
+  db[u] = { pass: hash(p), ganhos: [] };
+  localStorage.setItem('users',JSON.stringify(db));
+  alert('Cadastrado!');
+}
 
-function resetSenha(){let users=JSON.parse(localStorage.getItem('users')||'{}');if(users[loginUser.value]){users[loginUser.value].senha='9999';localStorage.setItem('users',JSON.stringify(users));loginMsg.innerText='Senha redefinida para 9999'}}
+function logout(){ location.reload(); }
 
-function logout(){location.reload()}
+function iniciar(){
+  loginBox.style.display='none';
+  menu.style.display='flex';
+  app.style.display='block';
+  render();
+}
 
-function salvarConfig(){let users=JSON.parse(localStorage.getItem('users'));users[usuario].config={meta:+metaTotal.value,custo:+custoDiario.value,data:dataFinal.value};localStorage.setItem('users',JSON.stringify(users));alert('Configurações salvas');atualizarResumo()}
+function show(id){ document.querySelectorAll('section').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-function salvarGanho(){let users=JSON.parse(localStorage.getItem('users'));let c=users[usuario].config;let liquido=(+ganhoValor.value-+ganhoExtra.value)-c.custo;users[usuario].dados.push({data:ganhoData.value,valor:liquido});localStorage.setItem('users',JSON.stringify(users));ganhoValor.value=ganhoExtra.value='';atualizarResumo();renderTabela();desenharGrafico()}
+/* =====================================================
+   GANHOS / CRUD
+===================================================== */
+function salvarGanho(){
+  const d=data.value, t=turno.value, v=+valor.value, g=+gasto.value;
+  const db=JSON.parse(localStorage.getItem('users'));
+  let arr=db[currentUser].ganhos;
+  const i=arr.findIndex(x=>x.data===d && x.turno===t);
+  if(i>=0) arr[i]={data:d,turno:t,valor:v,gasto:g}; else arr.push({data:d,turno:t,valor:v,gasto:g});
+  localStorage.setItem('users',JSON.stringify(db));
+  render();
+}
 
-function atualizarResumo(){let u=JSON.parse(localStorage.getItem('users'))[usuario];let total=u.dados.reduce((s,d)=>s+d.valor,0);totalParcial.innerText='R$ '+total.toFixed(2);faltaMeta.innerText='R$ '+(u.config.meta-total).toFixed(2);metaHoje.innerText='R$ '+(u.config.meta/10).toFixed(2);metaProx.innerText='R$ '+((u.config.meta-total)/5).toFixed(2)}
+function excluir(i){
+  const db=JSON.parse(localStorage.getItem('users'));
+  db[currentUser].ganhos.splice(i,1);
+  localStorage.setItem('users',JSON.stringify(db));
+  render();
+}
 
-function renderTabela(){let u=JSON.parse(localStorage.getItem('users'))[usuario];tabela.innerHTML='<tr><th>Data</th><th>Valor Líquido</th></tr>';u.dados.forEach(d=>tabela.innerHTML+=`<tr><td>${d.data}</td><td>R$ ${d.valor.toFixed(2)}</td></tr>`)}
+/* =====================================================
+   RENDER
+===================================================== */
+let chart;
+function render(){
+  const db=JSON.parse(localStorage.getItem('users'));
+  const g=db[currentUser].ganhos;
+  hist.innerHTML='';
+  let total=0;
+  g.forEach((x,i)=>{
+    total+=x.valor-x.gasto;
+    hist.innerHTML+=`<tr><td>${x.data}</td><td>${x.turno}</td><td>${x.valor}</td><td>${x.gasto}</td><td><button onclick="excluir(${i})">❌</button></td></tr>`;
+  });
+  totalEl=total;
+  document.getElementById('total').innerText='R$ '+total.toFixed(2);
 
-function desenharGrafico(){let ctx=grafico.getContext('2d');let u=JSON.parse(localStorage.getItem('users'))[usuario];new Chart(ctx,{type:'bar',data:{labels:u.dados.map(d=>d.data),datasets:[{data:u.dados.map(d=>d.valor),backgroundColor:'#2ecc71'}]},options:{responsive:true}})}
-
-function carregar(){let u=JSON.parse(localStorage.getItem('users'))[usuario];metaTotal.value=u.config.meta;custoDiario.value=u.config.custo;dataFinal.value=u.config.data;atualizarResumo();renderTabela();desenharGrafico()}
-
-function exportarExcel(){let wb=XLSX.utils.book_new();let ws=XLSX.utils.table_to_sheet(tabela);XLSX.utils.book_append_sheet(wb,ws,'Historico');XLSX.writeFile(wb,'historico_meta_uber.xlsx')}
-
-function exportarPDF(){const {jsPDF}=window.jspdf;let doc=new jsPDF();doc.text('Histórico Meta Uber',10,10);doc.save('historico_meta_uber.pdf')}
+  /* gráfico */
+  const labels=g.map(x=>x.data+' '+x.turno);
+  const data=g.map(x=>x.valor-x.gasto);
+  if(chart) chart.destroy();
+  chart=new Chart(document.getElementById('chart'),{type:'line',data:{labels,datasets:[{label:'Lucro',data,fill:true}]}});
+}
 </script>
 </body>
 </html>
