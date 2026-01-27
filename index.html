@@ -2,152 +2,163 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meta Financeira Uber</title>
+<title>Meta Financeira Uber 💰</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;font-family:Poppins,sans-serif}
-body{margin:0;min-height:100vh;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('https://images.unsplash.com/photo-1604594849809-dfedbc827105?auto=format&fit=crop&w=1600&q=80');background-size:cover;background-position:center;color:#222}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins;background:#0f2027;color:#fff}
 .hidden{display:none}
-
-/* LOGIN */
-.login-box{max-width:380px;margin:80px auto;background:#fff;padding:25px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-.login-box h2{text-align:center;margin-top:0}
-.login-box button{margin-top:10px}
-
-/* APP */
-.container{display:flex;min-height:100vh}
-.sidebar{width:240px;background:#1e3c72;color:#fff;padding:20px;flex-shrink:0}
-.sidebar h2{margin-top:0}
-.sidebar button{width:100%;margin:6px 0;padding:12px;border:none;border-radius:10px;cursor:pointer;font-weight:600}
-.sidebar button:hover{opacity:.9}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:#111;padding:20px}
+.sidebar h2{margin:0 0 20px;font-size:20px;text-align:center}
+.sidebar button{width:100%;margin-bottom:10px;padding:12px;border:none;border-radius:10px;font-size:15px;cursor:pointer;background:#1f4068;color:#fff}
+.sidebar button:hover{background:#2a6fdb}
 .main{flex:1;padding:20px}
-.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:15px;box-shadow:0 8px 20px rgba(0,0,0,.15)}
-input,button{padding:12px;border-radius:10px;border:1px solid #ccc;width:100%}
-button.primary{background:#1e3c72;color:#fff;border:none}
-
-.tabs{margin-bottom:10px}
-.tabs button{margin-right:6px}
-
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{border-bottom:1px solid #ccc;padding:8px;text-align:center}
-
-@media(max-width:900px){
-  .container{flex-direction:column}
-  .sidebar{width:100%;display:flex;gap:6px;overflow-x:auto}
-  .sidebar button{min-width:140px}
-}
+.tabs{display:flex;gap:10px;margin-bottom:15px}
+.tabs button{flex:1;padding:10px;border:none;border-radius:10px;background:#1f4068;color:#fff;font-weight:600}
+.card{background:#fff;color:#000;padding:20px;border-radius:16px;margin-bottom:15px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
+.stat{background:#f1f3f6;border-radius:12px;padding:15px;text-align:center}
+.stat strong{display:block;font-size:20px;margin-top:5px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid #ddd;padding:8px;text-align:center}
+th{background:#eee}
+input,select{width:100%;padding:10px;margin-top:5px;border-radius:8px;border:1px solid #ccc}
+button.action{background:#27ae60;color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;margin-top:10px;cursor:pointer}
+@media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;display:flex;gap:10px;overflow:auto}}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login" class="login-box">
-<h2>Login</h2>
+<div id="loginBox" class="card" style="max-width:400px;margin:40px auto">
+<h2>🔐 Login</h2>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
-<button class="primary" onclick="login()">Entrar</button>
-<button onclick="showRegister()">Cadastrar</button>
-<button onclick="showReset()">Esqueci a senha</button>
+<button class="action" onclick="login()">Entrar</button>
+<button onclick="mostrarCadastro()">📝 Cadastrar</button>
+<button onclick="resetSenha()">🔄 Resetar senha</button>
 <p id="loginMsg"></p>
 </div>
 
-<!-- REGISTER -->
-<div id="register" class="login-box hidden">
-<h2>Cadastrar Usuário</h2>
-<input id="regUser" placeholder="Usuário">
-<input id="regPass" type="password" placeholder="Senha">
-<button class="primary" onclick="register()">Cadastrar</button>
-<button onclick="backLogin()">Voltar</button>
-<p id="regMsg"></p>
-</div>
-
-<!-- RESET -->
-<div id="reset" class="login-box hidden">
-<h2>Resetar Senha</h2>
-<input id="resetUser" placeholder="Usuário">
-<button class="primary" onclick="resetPassword()">Resetar para 9999</button>
-<button onclick="backLogin()">Voltar</button>
-<p id="resetMsg"></p>
+<!-- CADASTRO -->
+<div id="cadastroBox" class="card hidden" style="max-width:400px;margin:40px auto">
+<h2>📝 Cadastro</h2>
+<input id="cadUser" placeholder="Usuário">
+<input id="cadNome" placeholder="Nome completo">
+<input id="cadTel" placeholder="Celular">
+<input id="cadEmail" placeholder="E-mail">
+<input id="cadPass" type="password" placeholder="Senha">
+<button class="action" onclick="cadastrar()">Cadastrar</button>
+<button onclick="voltarLogin()">⬅ Voltar</button>
+<p id="cadMsg"></p>
 </div>
 
 <!-- APP -->
-<div id="app" class="container hidden">
-  <div class="sidebar">
-    <h2 id="userLabel"></h2>
-    <button onclick="showSection('resumo')">Resumo</button>
-    <button onclick="showSection('ganhos')">Ganhos do Dia</button>
-    <button onclick="showSection('graficos')">Gráficos</button>
-    <button onclick="showSection('historico')">Histórico</button>
-    <button onclick="logout()">Sair</button>
-  </div>
+<div id="app" class="app hidden">
 
-  <div class="main">
+<div class="sidebar">
+<h2>💰 Meta Uber</h2>
+<button onclick="mostrarResumo()">📊 Resumo</button>
+<button onclick="mostrarGraficos()">📈 Gráficos</button>
+<button onclick="mostrarHistorico()">🗂️ Histórico</button>
+<button onclick="logout()">🚪 Sair</button>
+</div>
 
-    <div id="resumo" class="card">
-      <div class="tabs">
-        <button onclick="showResumoTab('info')">Resumo</button>
-        <button onclick="showResumoTab('chart')">Gráficos</button>
-      </div>
-      <div id="resumoInfo"></div>
-      <canvas id="resumoChart" class="hidden"></canvas>
-    </div>
+<div class="main">
 
-    <div id="ganhos" class="card hidden">
-      <h3>Ganhos do Dia</h3>
-      <input type="date" id="dia">
-      <input id="manha" placeholder="Manhã">
-      <input id="tarde" placeholder="Tarde">
-      <input id="noite" placeholder="Noite">
-      <input id="extra" placeholder="Gastos Extras">
-      <button class="primary" onclick="salvarDia()">Salvar / Atualizar</button>
-    </div>
+<div id="resumo">
+<div class="stats">
+<div class="stat">Total Parcial<strong id="totalParcial">0</strong></div>
+<div class="stat">Falta p/ Meta<strong id="faltaMeta">0</strong></div>
+<div class="stat">Meta Diária Hoje<strong id="metaHoje">0</strong></div>
+<div class="stat">Meta Próx. Dias<strong id="metaProx">0</strong></div>
+</div>
+</div>
 
-    <div id="graficos" class="card hidden">
-      <canvas id="chart"></canvas>
-    </div>
+<div id="graficos" class="hidden card">
+<canvas id="grafico"></canvas>
+</div>
 
-    <div id="historico" class="card hidden">
-      <table class="table">
-        <thead><tr><th>Data</th><th>Lucro</th></tr></thead>
-        <tbody id="hist"></tbody>
-      </table>
-    </div>
+<div id="historico" class="hidden card">
+<h3>🗂️ Histórico</h3>
+<table id="tabela"></table>
+<button onclick="exportarExcel()">📤 Exportar Excel</button>
+<button onclick="exportarPDF()">📄 Exportar PDF</button>
+</div>
 
-  </div>
+</div>
 </div>
 
 <script>
-let currentUser=null
-function getUsers(){return JSON.parse(localStorage.getItem('users')||'{}')}
-function saveUsers(u){localStorage.setItem('users',JSON.stringify(u))}
+let usuarioLogado=null;
 
-function login(){const u=loginUser.value,p=loginPass.value;const users=getUsers();if(!users[u]||users[u].pass!==p){loginMsg.innerText='Usuário ou senha inválidos';return;}currentUser=u;localStorage.setItem('session',u);initApp()}
-function register(){const u=regUser.value,p=regPass.value;const users=getUsers();if(users[u]){regMsg.innerText='Usuário já existe';return;}users[u]={pass:p,data:{}};saveUsers(users);regMsg.innerText='Usuário criado com sucesso'}
-function resetPassword(){const u=resetUser.value;const users=getUsers();if(!users[u]){resetMsg.innerText='Usuário não encontrado';return;}users[u].pass='9999';saveUsers(users);resetMsg.innerText='Sua senha foi redefinida'}
-function showRegister(){login.classList.add('hidden');register.classList.remove('hidden')}
-function showReset(){login.classList.add('hidden');reset.classList.remove('hidden')}
-function backLogin(){register.classList.add('hidden');reset.classList.add('hidden');login.classList.remove('hidden')}
+function mostrarCadastro(){loginBox.classList.add('hidden');cadastroBox.classList.remove('hidden')}
+function voltarLogin(){cadastroBox.classList.add('hidden');loginBox.classList.remove('hidden')}
 
-function initApp(){login.classList.add('hidden');register.classList.add('hidden');reset.classList.add('hidden');app.classList.remove('hidden');userLabel.innerText=currentUser;showSection('resumo');renderResumo();renderHistorico();renderGrafico()}
+function cadastrar(){
+const u=cadUser.value;
+let users=JSON.parse(localStorage.getItem('users')||'{}');
+if(users[u]){cadMsg.innerText='Usuário já existe';return}
+users[u]={senha:cadPass.value,dados:[]};
+localStorage.setItem('users',JSON.stringify(users));
+cadMsg.innerText='Cadastro realizado';}
 
-function getData(){const users=getUsers();return users[currentUser].data}
-function saveData(d){const users=getUsers();users[currentUser].data=d;saveUsers(users)}
+function login(){
+let users=JSON.parse(localStorage.getItem('users')||'{}');
+if(users[loginUser.value]?.senha===loginPass.value){usuarioLogado=loginUser.value;loginBox.classList.add('hidden');app.classList.remove('hidden');carregar();}
+else loginMsg.innerText='Login inválido';}
 
-function salvarDia(){const d=dia.value;if(!d)return;const lucro=(+manha.value||0)+(+tarde.value||0)+(+noite.value||0)-(+extra.value||0);const data=getData();data[d]={lucro};saveData(data);renderResumo();renderHistorico();renderGrafico()}
+function resetSenha(){
+let u=loginUser.value;
+let users=JSON.parse(localStorage.getItem('users')||'{}');
+if(users[u]){users[u].senha='9999';localStorage.setItem('users',JSON.stringify(users));loginMsg.innerText='Senha redefinida para 9999';}}
 
-function renderResumo(){const data=getData();let total=0;Object.values(data).forEach(v=>total+=v.lucro);resumoInfo.innerHTML=`<h3>Total Parcial: R$ ${total.toFixed(2)}</h3>`}
-function renderHistorico(){const data=getData();hist.innerHTML='';Object.keys(data).forEach(d=>{hist.innerHTML+=`<tr><td>${d}</td><td>${data[d].lucro.toFixed(2)}</td></tr>`})}
-function renderGrafico(){const data=getData();const ctx=chart.getContext('2d');if(window.grafico)window.grafico.destroy();window.grafico=new Chart(ctx,{type:'bar',data:{labels:Object.keys(data),datasets:[{label:'Lucro Diário',data:Object.values(data).map(v=>v.lucro)}]}})}
+function logout(){location.reload()}
 
-function showResumoTab(tab){resumoInfo.classList.toggle('hidden',tab!=='info');resumoChart.classList.toggle('hidden',tab!=='chart');if(tab==='chart')renderResumoChart()}
-function renderResumoChart(){const data=getData();const ctx=resumoChart.getContext('2d');if(window.resChart)window.resChart.destroy();window.resChart=new Chart(ctx,{type:'line',data:{labels:Object.keys(data),datasets:[{label:'Lucro',data:Object.values(data).map(v=>v.lucro)}]}})}
+function mostrarResumo(){resumo.classList.remove('hidden');graficos.classList.add('hidden');historico.classList.add('hidden')}
+function mostrarGraficos(){resumo.classList.add('hidden');graficos.classList.remove('hidden');historico.classList.add('hidden')}
+function mostrarHistorico(){resumo.classList.add('hidden');graficos.classList.add('hidden');historico.classList.remove('hidden')}
 
-function showSection(id){['resumo','ganhos','graficos','historico'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
-function logout(){localStorage.removeItem('session');location.reload()}
+function carregar(){atualizarResumo();desenharGrafico();renderTabela()}
 
-const sess=localStorage.getItem('session');if(sess){currentUser=sess;initApp()}
+function atualizarResumo(){
+let users=JSON.parse(localStorage.getItem('users'));
+let dados=users[usuarioLogado].dados||[];
+let total=dados.reduce((s,d)=>s+d.valor,0);
+totalParcial.innerText='R$ '+total.toFixed(2);
+faltaMeta.innerText='R$ '+(1500-total).toFixed(2);
+metaHoje.innerText='R$ 200';
+metaProx.innerText='R$ '+((1500-total)/5).toFixed(2);
+}
+
+function desenharGrafico(){
+let ctx=grafico.getContext('2d');
+let users=JSON.parse(localStorage.getItem('users'));
+let dados=users[usuarioLogado].dados||[];
+new Chart(ctx,{type:'bar',data:{labels:dados.map(d=>d.data),datasets:[{data:dados.map(d=>d.valor)}]}})}
+
+function renderTabela(){
+let users=JSON.parse(localStorage.getItem('users'));
+let dados=users[usuarioLogado].dados||[];
+tabela.innerHTML='<tr><th>Data</th><th>Valor</th></tr>';
+dados.forEach(d=>{tabela.innerHTML+=`<tr><td>${d.data}</td><td>${d.valor}</td></tr>`})}
+
+function exportarExcel(){
+let wb=XLSX.utils.book_new();
+let ws=XLSX.utils.table_to_sheet(tabela);
+XLSX.utils.book_append_sheet(wb,ws,'Historico');
+XLSX.writeFile(wb,'historico.xlsx')}
+
+function exportarPDF(){
+const {jsPDF}=window.jspdf;
+let doc=new jsPDF();
+doc.text('Histórico Financeiro',10,10);
+doc.save('historico.pdf')}
 </script>
 </body>
 </html>
