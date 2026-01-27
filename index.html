@@ -2,270 +2,118 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meta Uber • Login</title>
+<title>Meta Financeira Uber</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Poppins,sans-serif;
-  min-height:100vh;
-  background:
-    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
-    url("https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80");
-  background-size:cover;
-  padding:20px;
-}
-.container{
-  max-width:1100px;
-  margin:auto;
-  display:none;
-  gap:20px;
-}
-.login{
-  max-width:400px;
-  margin:auto;
-  background:rgba(255,255,255,.95);
-  padding:25px;
-  border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.2);
-}
-.card,header{
-  background:rgba(255,255,255,.95);
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.15);
-}
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-h1,h2{margin:0;color:#1e3c72}
-label{display:block;margin-top:10px}
-input{
-  width:100%;
-  padding:10px;
-  margin-top:5px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-button{
-  width:100%;
-  margin-top:15px;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(135deg,#1e3c72,#2a5298);
-  color:#fff;
-  font-weight:600;
-  cursor:pointer;
-}
-.logout{
-  background:#c0392b;
-}
-.stats{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:15px;
-}
-.stat{
-  background:#f0f3fa;
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
-}
-.stat strong{display:block;font-size:1.3rem}
-.alerta{color:#c0392b;font-weight:600}
-.ok{color:#27ae60;font-weight:600}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:.85rem;
-}
-th,td{
-  padding:8px;
-  border-bottom:1px solid #ddd;
-  text-align:center;
-}
-th{background:#f0f3fa}
-.acoes button{
-  width:auto;
-  padding:6px 10px;
-}
-canvas{width:100%;max-height:220px}
-@media(min-width:900px){
-  .container{display:grid;grid-template-columns:1fr 1fr}
-  .full{grid-column:1/-1}
-}
+*{box-sizing:border-box;font-family:Poppins,sans-serif}
+body{margin:0;min-height:100vh;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('https://images.unsplash.com/photo-1604594849809-dfedbc827105?auto=format&fit=crop&w=1600&q=80');background-size:cover;color:#222}
+.hidden{display:none}
+.container{display:flex;min-height:100vh}
+.sidebar{width:240px;background:#1e3c72;color:#fff;padding:20px}
+.sidebar h2{margin-top:0}
+.sidebar button{width:100%;margin:6px 0;padding:10px;border:none;border-radius:8px;cursor:pointer}
+.main{flex:1;padding:20px}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:15px}
+input,button{padding:10px;border-radius:8px;border:1px solid #ccc;width:100%}
+button.primary{background:#1e3c72;color:#fff;border:none}
+.tabs button{margin-right:5px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid #ccc;padding:8px;text-align:center}
 </style>
 </head>
-
 <body>
 
 <!-- LOGIN -->
-<div class="login" id="loginBox">
-  <h2>Login / Cadastro</h2>
-  <label>Usuário</label>
-  <input id="loginUser">
-  <label>Senha</label>
-  <input id="loginPass" type="password">
-  <button onclick="entrar()">Entrar / Cadastrar</button>
+<div id="login" class="card" style="max-width:400px;margin:80px auto">
+<h2>Login</h2>
+<input id="loginUser" placeholder="Usuário">
+<input id="loginPass" type="password" placeholder="Senha">
+<button class="primary" onclick="login()">Entrar</button>
+<button onclick="showRegister()">Cadastrar</button>
+<button onclick="showReset()">Esqueci a senha</button>
+<p id="loginMsg"></p>
 </div>
 
-<!-- SISTEMA -->
-<div class="container" id="app">
-
-<header class="full">
-  <h1>Meta Uber 💰</h1>
-  <button class="logout" onclick="logout()">Sair</button>
-</header>
-
-<div class="card">
-  <h2>Configurações</h2>
-  <label>Meta total</label>
-  <input id="meta" type="number" value="1500">
-  <label>Data final</label>
-  <input id="dataFinal" type="date" value="2026-02-06">
-  <label>Gasolina diária</label>
-  <input id="gasolina" type="number" value="80">
+<!-- REGISTER -->
+<div id="register" class="card hidden" style="max-width:400px;margin:80px auto">
+<h2>Cadastrar Usuário</h2>
+<input id="regUser" placeholder="Usuário">
+<input id="regPass" type="password" placeholder="Senha">
+<button class="primary" onclick="register()">Cadastrar</button>
+<button onclick="backLogin()">Voltar</button>
+<p id="regMsg"></p>
 </div>
 
-<div class="card">
-  <h2>Ganhos do Dia</h2>
-  <label>Data</label>
-  <input id="dataDia" type="date">
-  <label>Manhã</label><input id="manha" type="number">
-  <label>Tarde</label><input id="tarde" type="number">
-  <label>Noite</label><input id="noite" type="number">
-  <label>Gasto extra</label><input id="extra" type="number">
-  <label>Descrição</label><input id="desc">
-  <button onclick="salvarDia()">Salvar / Atualizar</button>
+<!-- RESET -->
+<div id="reset" class="card hidden" style="max-width:400px;margin:80px auto">
+<h2>Resetar Senha</h2>
+<input id="resetUser" placeholder="Usuário">
+<button class="primary" onclick="resetPassword()">Resetar para 9999</button>
+<button onclick="backLogin()">Voltar</button>
+<p id="resetMsg"></p>
 </div>
 
-<div class="card full">
-  <h2>Resumo</h2>
-  <div class="stats" id="resumo"></div>
-  <div id="planejamento"></div>
+<!-- APP -->
+<div id="app" class="container hidden">
+<div class="sidebar">
+<h2 id="userLabel"></h2>
+<button onclick="showSection('resumo')">Resumo</button>
+<button onclick="showSection('ganhos')">Ganhos do Dia</button>
+<button onclick="showSection('graficos')">Gráficos</button>
+<button onclick="showSection('historico')">Histórico</button>
+<button onclick="logout()">Sair</button>
+</div>
+<div class="main">
+
+<div id="resumo" class="card"></div>
+
+<div id="ganhos" class="card hidden">
+<h3>Ganhos do Dia</h3>
+<input type="date" id="dia">
+<input id="manha" placeholder="Manhã">
+<input id="tarde" placeholder="Tarde">
+<input id="noite" placeholder="Noite">
+<input id="extra" placeholder="Gastos Extras">
+<button class="primary" onclick="salvarDia()">Salvar / Atualizar</button>
 </div>
 
-<div class="card full">
-  <h2>Gráfico</h2>
-  <canvas id="grafico"></canvas>
+<div id="graficos" class="card hidden">
+<canvas id="chart"></canvas>
 </div>
 
-<div class="card full">
-  <h2>Histórico</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Data</th><th>Bruto</th><th>Gas</th><th>Extra</th><th>Líquido</th><th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tabela"></tbody>
-  </table>
+<div id="historico" class="card hidden">
+<table class="table"><thead><tr><th>Data</th><th>Lucro</th></tr></thead><tbody id="hist"></tbody></table>
 </div>
 
+</div>
 </div>
 
 <script>
-let usuario = localStorage.getItem("usuarioLogado");
-let dias = {};
-let editando = null;
+let currentUser=null
+function getUsers(){return JSON.parse(localStorage.getItem('users')||'{}')}
+function saveUsers(u){localStorage.setItem('users',JSON.stringify(u))}
 
-/* LOGIN */
-function entrar(){
-  const u = loginUser.value.trim();
-  const p = loginPass.value.trim();
-  if(!u||!p){alert("Preencha usuário e senha");return;}
+function login(){const u=loginUser.value,p=loginPass.value;const users=getUsers();if(!users[u]||users[u].pass!==p){loginMsg.innerText='Usuário ou senha inválidos';return;}currentUser=u;localStorage.setItem('session',u);initApp()}
+function register(){const u=regUser.value,p=regPass.value;const users=getUsers();if(users[u]){regMsg.innerText='Usuário já existe';return;}users[u]={pass:p,data:{}};saveUsers(users);regMsg.innerText='Usuário criado com sucesso'}
+function resetPassword(){const u=resetUser.value;const users=getUsers();if(!users[u]){resetMsg.innerText='Usuário não encontrado';return;}users[u].pass='9999';saveUsers(users);resetMsg.innerText='Sua senha foi redefinida'}
+function showRegister(){login.classList.add('hidden');register.classList.remove('hidden')}
+function showReset(){login.classList.add('hidden');reset.classList.remove('hidden')}
+function backLogin(){register.classList.add('hidden');reset.classList.add('hidden');login.classList.remove('hidden')}
 
-  const users = JSON.parse(localStorage.getItem("users")) || {};
-  if(!users[u]) users[u]=p;
-  if(users[u]!==p){alert("Senha incorreta");return;}
+function initApp(){login.classList.add('hidden');register.classList.add('hidden');reset.classList.add('hidden');app.classList.remove('hidden');userLabel.innerText=currentUser;renderResumo();renderHistorico();renderGrafico()}
 
-  localStorage.setItem("users",JSON.stringify(users));
-  localStorage.setItem("usuarioLogado",u);
-  location.reload();
-}
+function getData(){const users=getUsers();return users[currentUser].data}
+function saveData(d){const users=getUsers();users[currentUser].data=d;saveUsers(users)}
 
-function logout(){
-  localStorage.removeItem("usuarioLogado");
-  location.reload();
-}
+function salvarDia(){const d=dia.value;if(!d)return;const lucro=(+manha.value||0)+(+tarde.value||0)+(+noite.value||0)-(+extra.value||0);const data=getData();data[d]={lucro};saveData(data);renderResumo();renderHistorico();renderGrafico()}
 
-/* SISTEMA */
-if(usuario){
-  loginBox.style.display="none";
-  app.style.display="grid";
-  dias = JSON.parse(localStorage.getItem("diasUber_"+usuario)) || {};
-  render();
-}else{
-  loginBox.style.display="block";
-}
+function renderResumo(){const data=getData();let total=0;Object.values(data).forEach(v=>total+=v.lucro);resumo.innerHTML=`<h3>Total Parcial: R$ ${total.toFixed(2)}</h3>`}
+function renderHistorico(){const data=getData();hist.innerHTML='';Object.keys(data).forEach(d=>{hist.innerHTML+=`<tr><td>${d}</td><td>${data[d].lucro.toFixed(2)}</td></tr>`})}
+function renderGrafico(){const data=getData();const ctx=chart.getContext('2d');new Chart(ctx,{type:'bar',data:{labels:Object.keys(data),datasets:[{data:Object.values(data).map(v=>v.lucro)}]}})}
+function showSection(id){['resumo','ganhos','graficos','historico'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+function logout(){localStorage.removeItem('session');location.reload()}
 
-function salvar(){
-  localStorage.setItem("diasUber_"+usuario,JSON.stringify(dias));
-}
-
-function salvarDia(){
-  if(!dataDia.value){alert("Informe a data");return;}
-  const m=+manha.value||0,t=+tarde.value||0,n=+noite.value||0;
-  const g=+gasolina.value,e=+extra.value||0;
-  const bruto=m+t+n,liq=bruto-g-e;
-
-  dias[dataDia.value]={data:dataDia.value,bruto,gas:g,extra:e,liq};
-  salvar(); limpar(); render();
-}
-
-function editar(d){
-  const x=dias[d];
-  dataDia.value=x.data;
-  editando=d;
-}
-
-function excluir(d){
-  if(confirm("Excluir dia?")){delete dias[d];salvar();render();}
-}
-
-function limpar(){
-  dataDia.value=manha.value=tarde.value=noite.value=extra.value=desc.value="";
-}
-
-function render(){
-  tabela.innerHTML="";
-  let total=0;
-  Object.values(dias).sort((a,b)=>a.data.localeCompare(b.data)).forEach(d=>{
-    total+=d.liq;
-    tabela.innerHTML+=`
-    <tr>
-      <td>${d.data}</td>
-      <td>${d.bruto.toFixed(2)}</td>
-      <td>${d.gas.toFixed(2)}</td>
-      <td>${d.extra.toFixed(2)}</td>
-      <td><b>${d.liq.toFixed(2)}</b></td>
-      <td class="acoes">
-        <button onclick="editar('${d.data}')">✏️</button>
-        <button onclick="excluir('${d.data}')">🗑️</button>
-      </td>
-    </tr>`;
-  });
-
-  const diasRest=Math.max(0,Math.ceil((new Date(dataFinal.value)-new Date())/86400000));
-  const falta=meta.value-total;
-
-  resumo.innerHTML=`
-    <div class="stat">Total<strong>R$ ${total.toFixed(2)}</strong></div>
-    <div class="stat">Dias<strong>${diasRest}</strong></div>
-    <div class="stat">Falta<strong>R$ ${Math.max(0,falta).toFixed(2)}</strong></div>
-  `;
-  planejamento.innerHTML=(diasRest>0&&falta>0)?
-    `<p class="alerta">Meta diária: R$ ${(falta/diasRest).toFixed(2)}</p>`:
-    `<p class="ok">🎉 Meta atingida!</p>`;
-}
-</script>
-
-</body>
-</html>
+const sess=localStorage.getItem('session');if(sess){currentUser=sess;initApp()}
+</script
