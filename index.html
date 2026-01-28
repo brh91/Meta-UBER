@@ -1,287 +1,468 @@
+<!--
+META UBER - SISTEMA COMPLETO (VERSÃO CONSOLIDADA E EVOLUÍDA)
+Autor: Projeto Meta Uber
+
+OBJETIVO:
+Sistema financeiro pessoal para motoristas (Uber/Apps)
+Controle de metas, ganhos por turno, histórico, gráficos e exportação
+
+IMPORTANTE:
+- Sistema 100% front-end
+- Persistência via localStorage
+- Segurança básica (educacional / GitHub Pages)
+- Código EXTREMAMENTE comentado para manutenção futura
+-->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta Uber 💰</title>
+  <meta charset="UTF-8">
+  <title>Meta Uber • Controle Financeiro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ================== ESTILOS GERAIS ================== -->
+  <!-- Fonte moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js (Gráficos profissionais) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- SheetJS (Excel) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
   <style>
-    /* RESET */
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+  /* ======================================================
+     RESET E BASE VISUAL
+  ====================================================== */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      display: flex;
-    }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.65)),
+    url('https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    color: #fff;
+  }
 
-    /* ================== MENU LATERAL ================== */
-    aside {
-      width: 240px;
-      background: rgba(0,0,0,0.35);
-      padding: 20px;
-      display: none;
-      flex-direction: column;
-    }
+  button { cursor: pointer; }
 
-    aside h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  /* ======================================================
+     LOGIN / CADASTRO
+  ====================================================== */
+  .auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    aside button {
-      margin: 6px 0;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      background: #1f3b5b;
-      color: #fff;
-      cursor: pointer;
-      font-size: 15px;
-    }
+  .auth-box {
+    background: rgba(255,255,255,.95);
+    color: #222;
+    width: 100%;
+    max-width: 380px;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.35);
+  }
 
-    aside button:hover { background: #2c5a88; }
+  .auth-box h2 { text-align: center; margin-bottom: 15px; }
 
-    /* ================== CONTEÚDO ================== */
-    main {
-      flex: 1;
-      padding: 20px;
-      display: none;
-    }
+  .auth-box input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
 
-    section { display: none; }
-    section.active { display: block; }
+  .auth-box button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #1e3c72;
+    color: #fff;
+    font-weight: 600;
+    margin-top: 5px;
+  }
 
-    /* ================== CARDS RESUMO ================== */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
+  .auth-box small { display:block; text-align:center; margin-top:8px; cursor:pointer; }
 
-    .card {
-      background: rgba(255,255,255,0.15);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-    }
+  /* ======================================================
+     LAYOUT PRINCIPAL
+  ====================================================== */
+  .app { display: none; }
 
-    .card h3 { font-size: 14px; opacity: 0.9; }
-    .card p { font-size: 26px; margin-top: 8px; font-weight: bold; }
+  .layout {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    min-height: 100vh;
+  }
 
-    /* ================== PROGRESSO ================== */
-    .progress {
-      width: 100%;
-      height: 20px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 15px;
-    }
+  /* MENU LATERAL */
+  .sidebar {
+    background: #0f2027;
+    padding: 20px;
+  }
 
-    .progress div {
-      height: 100%;
-      background: linear-gradient(90deg,#00ffcc,#00c6ff);
-      width: 0%;
-    }
+  .sidebar h3 { margin-bottom: 20px; }
 
-    /* ================== FORMULÁRIOS ================== */
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      border-radius: 6px;
-      border: none;
-    }
+  .sidebar button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #1e3c72;
+    color: #fff;
+    font-weight: 500;
+    text-align: left;
+  }
 
-    .btn {
-      background: #00c6ff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
+  /* CONTEÚDO */
+  .content { padding: 25px; }
 
-    /* ================== TABELA ================== */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
+  .section { display: none; }
+  .section.active { display: block; }
 
-    th, td {
-      padding: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      text-align: center;
-    }
+  /* ======================================================
+     CARDS RESUMO
+  ====================================================== */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
 
-    /* ================== LOGIN ================== */
-    #loginBox {
-      margin: auto;
-      background: rgba(255,255,255,0.12);
-      padding: 30px;
-      border-radius: 12px;
-      width: 320px;
-    }
+  .card {
+    background: rgba(255,255,255,.95);
+    color: #1e3c72;
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+  }
 
-    /* ================== RESPONSIVO ================== */
-    @media(max-width:768px){
-      aside { width: 100px; }
-      aside button { font-size: 12px; }
-    }
+  .card strong { display:block; font-size: 1.4rem; margin-top: 5px; }
+
+  /* BARRA DE PROGRESSO */
+  .progress {
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress div {
+    height: 16px;
+    width: 0%;
+    background: linear-gradient(135deg,#27ae60,#2ecc71);
+  }
+
+  /* ======================================================
+     FORMULÁRIOS
+  ====================================================== */
+  input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: none;
+  }
+
+  /* ======================================================
+     HISTÓRICO
+  ====================================================== */
+  table {
+    width: 100%;
+    background: rgba(255,255,255,.95);
+    color: #222;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+  }
+
+  th { background: #f0f3fa; }
+
   </style>
 </head>
 <body>
 
-<!-- ================== LOGIN ================== -->
-<div id="loginBox">
-  <h2>🔐 Login</h2>
-  <input id="user" placeholder="Usuário" />
-  <input id="pass" type="password" placeholder="Senha" />
-  <button class="btn" onclick="login()">Entrar</button>
-  <button onclick="register()">Cadastrar</button>
+<!-- ======================================================
+     LOGIN
+====================================================== -->
+<div class="auth-container" id="auth">
+  <div class="auth-box">
+    <h2>🔐 Login</h2>
+    <input id="loginUser" placeholder="Usuário">
+    <input id="loginPass" type="password" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <small onclick="resetSenha()">Esqueci a senha</small>
+    <p id="authMsg"></p>
+  </div>
 </div>
 
-<!-- ================== MENU ================== -->
-<aside id="menu">
-  <h2>💰 Meta Uber</h2>
-  <button onclick="show('resumo')">📊 Resumo</button>
-  <button onclick="show('ganhos')">🕒 Ganhos do Dia</button>
-  <button onclick="show('graficos')">📈 Gráficos</button>
-  <button onclick="show('historico')">📁 Histórico</button>
-  <button onclick="logout()">🚪 Sair</button>
-</aside>
+<!-- ======================================================
+     APLICAÇÃO
+====================================================== -->
+<div class="app" id="app">
+  <div class="layout">
 
-<!-- ================== MAIN ================== -->
-<main id="app">
-
-  <!-- ================== RESUMO ================== -->
-  <section id="resumo" class="active">
-    <div class="cards">
-      <div class="card"><h3>Total Acumulado</h3><p id="total">R$ 0</p></div>
-      <div class="card"><h3>Falta p/ Meta</h3><p id="falta">R$ 0</p></div>
-      <div class="card"><h3>Meta Diária</h3><p id="diaria">R$ 0</p></div>
+    <!-- MENU -->
+    <div class="sidebar">
+      <h3>💰 Meta Uber</h3>
+      <button onclick="show('resumo')">📊 Resumo</button>
+      <button onclick="show('ganhos')">🕒 Ganhos do Dia</button>
+      <button onclick="show('graficos')">📈 Gráficos</button>
+      <button onclick="show('historico')">📁 Histórico</button>
+      <button onclick="logout()">🚪 Sair</button>
     </div>
-    <div class="progress"><div id="barra"></div></div>
-  </section>
 
-  <!-- ================== GANHOS ================== -->
-  <section id="ganhos">
-    <h2>🕒 Ganhos do Dia</h2>
-    <input type="date" id="data" />
-    <select id="turno">
-      <option>Manhã</option>
-      <option>Tarde</option>
-      <option>Noite</option>
-    </select>
-    <input type="number" id="valor" placeholder="Ganho" />
-    <input type="number" id="gasto" placeholder="Gastos" />
-    <button class="btn" onclick="salvarGanho()">Salvar / Atualizar</button>
-  </section>
+    <!-- CONTEÚDO -->
+    <div class="content">
 
-  <!-- ================== GRÁFICOS ================== -->
-  <section id="graficos">
-    <canvas id="chart"></canvas>
-  </section>
+      <!-- RESUMO -->
+      <div class="section active" id="resumo">
+        <div class="cards">
+          <div class="card">Total Parcial<strong id="total">0</strong></div>
+          <div class="card">Falta p/ Meta<strong id="falta">0</strong></div>
+          <div class="card">Meta Diária<strong id="metaDia">0</strong></div>
+          <div class="card">Dias Restantes<strong id="dias">0</strong></div>
+        </div>
+        <div class="progress"><div id="barra"></div></div>
+      </div>
 
-  <!-- ================== HISTÓRICO ================== -->
-  <section id="historico">
-    <table>
-      <thead>
-        <tr><th>Data</th><th>Turno</th><th>Ganho</th><th>Gasto</th><th>Ação</th></tr>
-      </thead>
-      <tbody id="hist"></tbody>
-    </table>
-  </section>
-</main>
+      <!-- GANHOS -->
+      <div class="section" id="ganhos">
+        <h3>🕒 Ganhos do Dia</h3>
+        <input type="date" id="dia">
+        <input placeholder="Manhã" id="manha">
+        <input placeholder="Tarde" id="tarde">
+        <input placeholder="Noite" id="noite">
+        <input placeholder="Gastos Extras" id="extra">
+        <button onclick="salvarDia()">Salvar / Atualizar</button>
+      </div>
 
-<!-- ================== SCRIPT ================== -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <!-- GRÁFICOS -->
+      <div class="section" id="graficos">
+        <canvas id="chart"></canvas>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="section" id="historico">
+        <table>
+          <thead>
+            <tr><th>Data</th><th>Manhã</th><th>Tarde</th><th>Noite</th><th>Extras</th><th>Total</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="hist"></tbody>
+        </table>
+        <button onclick="exportExcel()">📤 Exportar Excel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
-/* =====================================================
-   SEGURANÇA BÁSICA
-   - Dados isolados por usuário
-   - Senha armazenada como hash simples
-===================================================== */
+/* ======================================================
+   VARIÁVEIS GLOBAIS E SEGURANÇA BÁSICA
+====================================================== */
+let usuarioLogado = null;
+const usuarios = JSON.parse(localStorage.getItem('usuarios') || '{}');
 
-let currentUser = null;
-
-function hash(t){ return btoa(t); }
-
+/* ======================================================
+   LOGIN / LOGOUT
+====================================================== */
 function login(){
-  const u = user.value, p = pass.value;
-  const db = JSON.parse(localStorage.getItem('users')||'{}');
-  if(!db[u] || db[u].pass !== hash(p)) return alert('Login inválido');
-  currentUser = u;
-  iniciar();
+  const u = loginUser.value;
+  const p = loginPass.value;
+
+  if(!usuarios[u] || usuarios[u].senha !== p){
+    authMsg.innerText = 'Usuário ou senha inválidos';
+    return;
+  }
+
+  usuarioLogado = u;
+  localStorage.setItem('logado', u);
+  iniciarApp();
 }
 
-function register(){
-  const u = user.value, p = pass.value;
-  const db = JSON.parse(localStorage.getItem('users')||'{}');
-  if(db[u]) return alert('Usuário já existe');
-  db[u] = { pass: hash(p), ganhos: [] };
-  localStorage.setItem('users',JSON.stringify(db));
-  alert('Cadastrado!');
+function logout(){
+  localStorage.removeItem('logado');
+  location.reload();
 }
 
-function logout(){ location.reload(); }
-
-function iniciar(){
-  loginBox.style.display='none';
-  menu.style.display='flex';
-  app.style.display='block';
-  render();
+function resetSenha(){
+  const u = prompt('Usuário para redefinir a senha');
+  if(usuarios[u]){
+    usuarios[u].senha = '9999';
+    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+    alert('Senha redefinida para 9999');
+  }
 }
 
-function show(id){ document.querySelectorAll('section').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-
-/* =====================================================
-   GANHOS / CRUD
-===================================================== */
-function salvarGanho(){
-  const d=data.value, t=turno.value, v=+valor.value, g=+gasto.value;
-  const db=JSON.parse(localStorage.getItem('users'));
-  let arr=db[currentUser].ganhos;
-  const i=arr.findIndex(x=>x.data===d && x.turno===t);
-  if(i>=0) arr[i]={data:d,turno:t,valor:v,gasto:g}; else arr.push({data:d,turno:t,valor:v,gasto:g});
-  localStorage.setItem('users',JSON.stringify(db));
-  render();
+/* ======================================================
+   CONTROLE DE TELAS
+====================================================== */
+function iniciarApp(){
+  auth.style.display = 'none';
+  app.style.display = 'block';
+  carregarDados();
+  atualizarResumo();
+  atualizarGrafico();
 }
 
-function excluir(i){
-  const db=JSON.parse(localStorage.getItem('users'));
-  db[currentUser].ganhos.splice(i,1);
-  localStorage.setItem('users',JSON.stringify(db));
-  render();
+function show(id){
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-/* =====================================================
-   RENDER
-===================================================== */
-let chart;
-function render(){
-  const db=JSON.parse(localStorage.getItem('users'));
-  const g=db[currentUser].ganhos;
-  hist.innerHTML='';
-  let total=0;
-  g.forEach((x,i)=>{
-    total+=x.valor-x.gasto;
-    hist.innerHTML+=`<tr><td>${x.data}</td><td>${x.turno}</td><td>${x.valor}</td><td>${x.gasto}</td><td><button onclick="excluir(${i})">❌</button></td></tr>`;
+/* ======================================================
+   GANHOS / HISTÓRICO
+====================================================== */
+function salvarDia(){
+  const data = dia.value;
+  if(!data) return;
+
+  if(!usuarios[usuarioLogado].dados) usuarios[usuarioLogado].dados = {};
+
+  usuarios[usuarioLogado].dados[data] = {
+    manha: +manha.value || 0,
+    tarde: +tarde.value || 0,
+    noite: +noite.value || 0,
+    extra: +extra.value || 0
+  };
+
+  localStorage.setItem('usuarios', JSON.stringify(usuarios));
+  carregarDados();
+  atualizarResumo();
+  atualizarGrafico();
+}
+
+function carregarDados(){
+  const dados = usuarios[usuarioLogado].dados || {};
+  hist.innerHTML = '';
+
+  Object.keys(dados).sort().forEach(d => {
+    const t = dados[d].manha + dados[d].tarde + dados[d].noite - dados[d].extra;
+    hist.innerHTML += `
+      <tr>
+        <td>${d}</td>
+        <td>${dados[d].manha}</td>
+        <td>${dados[d].tarde}</td>
+        <td>${dados[d].noite}</td>
+        <td>${dados[d].extra}</td>
+        <td>${t}</td>
+        <td>
+          <button onclick="editarDia('${d}')">✏️</button>
+          <button onclick="excluirDia('${d}')">🗑️</button>
+        </td>
+      </tr>`;
   });
-  totalEl=total;
-  document.getElementById('total').innerText='R$ '+total.toFixed(2);
-
-  /* gráfico */
-  const labels=g.map(x=>x.data+' '+x.turno);
-  const data=g.map(x=>x.valor-x.gasto);
-  if(chart) chart.destroy();
-  chart=new Chart(document.getElementById('chart'),{type:'line',data:{labels,datasets:[{label:'Lucro',data,fill:true}]}});
 }
+
+function editarDia(d){
+  const dados = usuarios[usuarioLogado].dados[d];
+  dia.value = d;
+  manha.value = dados.manha;
+  tarde.value = dados.tarde;
+  noite.value = dados.noite;
+  extra.value = dados.extra;
+  show('ganhos');
+}
+
+function excluirDia(d){
+  delete usuarios[usuarioLogado].dados[d];
+  localStorage.setItem('usuarios', JSON.stringify(usuarios));
+  carregarDados();
+  atualizarResumo();
+  atualizarGrafico();
+}
+
+/* ======================================================
+   RESUMO / METAS
+====================================================== */
+function atualizarResumo(){
+  const dados = usuarios[usuarioLogado].dados || {};
+  let total = 0;
+
+  Object.values(dados).forEach(v => {
+    total += v.manha + v.tarde + v.noite - v.extra;
+  });
+
+  const meta = 1500; // futura configuração
+  const falta = Math.max(0, meta - total);
+  const diasRestantes = 5; // futura configuração
+
+  total.innerText = `R$ ${total.toFixed(2)}`;
+  falta.innerText = `R$ ${falta.toFixed(2)}`;
+  metaDia.innerText = `R$ ${(falta / diasRestantes).toFixed(2)}`;
+  dias.innerText = diasRestantes;
+
+  barra.style.width = `${Math.min((total / meta) * 100, 100)}%`;
+}
+
+/* ======================================================
+   GRÁFICOS
+====================================================== */
+let grafico;
+function atualizarGrafico(){
+  const dados = usuarios[usuarioLogado].dados || {};
+  const labels = [];
+  const valores = [];
+
+  Object.keys(dados).sort().forEach(d => {
+    labels.push(d);
+    valores.push(dados[d].manha + dados[d].tarde + dados[d].noite - dados[d].extra);
+  });
+
+  if(grafico) grafico.destroy();
+
+  grafico = new Chart(chart, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Lucro Diário',
+        data: valores,
+        borderColor: '#2ecc71',
+        backgroundColor: 'rgba(46,204,113,.2)',
+        tension: 0.3
+      }]
+    }
+  });
+}
+
+/* ======================================================
+   EXPORTAÇÃO
+====================================================== */
+function exportExcel(){
+  const dados = usuarios[usuarioLogado].dados || {};
+  const planilha = Object.keys(dados).map(d => ({
+    Data: d,
+    Manhã: dados[d].manha,
+    Tarde: dados[d].tarde,
+    Noite: dados[d].noite,
+    Extras: dados[d].extra,
+    Total: dados[d].manha + dados[d].tarde + dados[d].noite - dados[d].extra
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(planilha);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Histórico');
+  XLSX.writeFile(wb, 'meta-uber.xlsx');
+}
+
+/* ======================================================
+   AUTO LOGIN
+====================================================== */
+const auto = localStorage.getItem('logado');
+if(auto){ usuarioLogado = auto; iniciarApp(); }
 </script>
 </body>
 </html>
