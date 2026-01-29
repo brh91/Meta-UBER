@@ -291,46 +291,107 @@ IMPORTANTE:
 
 <script>
 /* ======================================================
-   VARIÁVEIS GLOBAIS E SEGURANÇA BÁSICA
+   AUTENTICAÇÃO, USUÁRIOS E DADOS (VERSÃO CORRIGIDA)
+   REGRAS:
+   - Usuário + senha
+   - Não permitir usuário duplicado
+   - Reset de senha para 9999
+   - Dados salvos por usuário
 ====================================================== */
+
+// === BASE DE USUÁRIOS ===
+let usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
 let usuarioLogado = null;
-const usuarios = JSON.parse(localStorage.getItem('usuarios') || '{}');
 
-/* ======================================================
-   LOGIN / LOGOUT
-====================================================== */
-function login(){
-  const u = loginUser.value;
-  const p = loginPass.value;
+function salvarUsuarios() {
+  localStorage.setItem('usuarios', JSON.stringify(usuarios));
+}
 
-  if(!usuarios[u] || usuarios[u].senha !== p){
-    authMsg.innerText = 'Usuário ou senha inválidos';
+/* ===================== TELAS ===================== */
+function mostrarCadastro() {
+  loginBox.style.display = 'none';
+  cadastroBox.style.display = 'block';
+  resetBox.style.display = 'none';
+}
+
+function mostrarReset() {
+  loginBox.style.display = 'none';
+  cadastroBox.style.display = 'none';
+  resetBox.style.display = 'block';
+}
+
+function voltarLogin() {
+  loginBox.style.display = 'block';
+  cadastroBox.style.display = 'none';
+  resetBox.style.display = 'none';
+}
+
+/* ===================== CADASTRO ===================== */
+function cadastrar() {
+  const nome = cadNome.value.trim();
+  const user = cadUser.value.trim();
+  const email = cadEmail.value.trim();
+  const fone = cadFone.value.trim();
+  const senha = cadPass.value.trim();
+
+  if (!nome || !user || !senha) {
+    cadMsg.innerText = '⚠️ Preencha todos os campos obrigatórios';
     return;
   }
 
-  usuarioLogado = u;
-  localStorage.setItem('logado', u);
+  if (usuarios[user]) {
+    cadMsg.innerText = '❌ Usuário já existe';
+    return;
+  }
+
+  usuarios[user] = {
+    nome,
+    email,
+    fone,
+    senha,
+    dados: {}
+  };
+
+  salvarUsuarios();
+  cadMsg.innerText = '✅ Cadastro realizado com sucesso';
+}
+
+/* ===================== LOGIN ===================== */
+function login() {
+  const user = loginUser.value.trim();
+  const pass = loginPass.value.trim();
+
+  if (!usuarios[user] || usuarios[user].senha !== pass) {
+    authMsg.innerText = '❌ Usuário ou senha inválidos';
+    return;
+  }
+
+  usuarioLogado = user;
+  localStorage.setItem('logado', user);
   iniciarApp();
 }
 
-function logout(){
+function logout() {
   localStorage.removeItem('logado');
   location.reload();
 }
 
-function resetSenha(){
-  const u = prompt('Usuário para redefinir a senha');
-  if(usuarios[u]){
-    usuarios[u].senha = '9999';
-    localStorage.setItem('usuarios', JSON.stringify(usuarios));
-    alert('Senha redefinida para 9999');
+/* ===================== RESET DE SENHA ===================== */
+function resetSenhaConfirmar() {
+  const user = resetUser.value.trim();
+
+  if (!usuarios[user]) {
+    resetMsg.innerText = '❌ Usuário não encontrado';
+    return;
   }
+
+  usuarios[user].senha = '9999';
+  salvarUsuarios();
+  resetMsg.innerText = '🔑 Senha redefinida para 9999';
 }
 
-/* ======================================================
-   CONTROLE DE TELAS
-====================================================== */
-function iniciarApp(){
+/* ===================== APP ===================== */
+function iniciarApp() {
   auth.style.display = 'none';
   app.style.display = 'block';
   carregarDados();
@@ -338,19 +399,15 @@ function iniciarApp(){
   atualizarGrafico();
 }
 
-function show(id){
+function show(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-/* ======================================================
-   GANHOS / HISTÓRICO
-====================================================== */
-function salvarDia(){
+/* ===================== GANHOS ===================== */
+function salvarDia() {
   const data = dia.value;
-  if(!data) return;
-
-  if(!usuarios[usuarioLogado].dados) usuarios[usuarioLogado].dados = {};
+  if (!data) return;
 
   usuarios[usuarioLogado].dados[data] = {
     manha: +manha.value || 0,
@@ -359,13 +416,13 @@ function salvarDia(){
     extra: +extra.value || 0
   };
 
-  localStorage.setItem('usuarios', JSON.stringify(usuarios));
+  salvarUsuarios();
   carregarDados();
   atualizarResumo();
   atualizarGrafico();
 }
 
-function carregarDados(){
+function carregarDados() {
   const dados = usuarios[usuarioLogado].dados || {};
   hist.innerHTML = '';
 
@@ -387,7 +444,7 @@ function carregarDados(){
   });
 }
 
-function editarDia(d){
+function editarDia(d) {
   const dados = usuarios[usuarioLogado].dados[d];
   dia.value = d;
   manha.value = dados.manha;
@@ -397,42 +454,37 @@ function editarDia(d){
   show('ganhos');
 }
 
-function excluirDia(d){
+function excluirDia(d) {
   delete usuarios[usuarioLogado].dados[d];
-  localStorage.setItem('usuarios', JSON.stringify(usuarios));
+  salvarUsuarios();
   carregarDados();
   atualizarResumo();
   atualizarGrafico();
 }
 
-/* ======================================================
-   RESUMO / METAS
-====================================================== */
-function atualizarResumo(){
+/* ===================== RESUMO ===================== */
+function atualizarResumo() {
   const dados = usuarios[usuarioLogado].dados || {};
-  let total = 0;
+  let soma = 0;
 
   Object.values(dados).forEach(v => {
-    total += v.manha + v.tarde + v.noite - v.extra;
+    soma += v.manha + v.tarde + v.noite - v.extra;
   });
 
-  const meta = 1500; // futura configuração
-  const falta = Math.max(0, meta - total);
-  const diasRestantes = 5; // futura configuração
+  const meta = 1500;
+  const diasRestantes = 5;
+  const falta = Math.max(0, meta - soma);
 
-  total.innerText = `R$ ${total.toFixed(2)}`;
-  falta.innerText = `R$ ${falta.toFixed(2)}`;
+  total.innerText = `R$ ${soma.toFixed(2)}`;
+  faltaEl.innerText = `R$ ${falta.toFixed(2)}`;
   metaDia.innerText = `R$ ${(falta / diasRestantes).toFixed(2)}`;
   dias.innerText = diasRestantes;
-
-  barra.style.width = `${Math.min((total / meta) * 100, 100)}%`;
+  barra.style.width = `${Math.min((soma / meta) * 100, 100)}%`;
 }
 
-/* ======================================================
-   GRÁFICOS
-====================================================== */
+/* ===================== GRÁFICO ===================== */
 let grafico;
-function atualizarGrafico(){
+function atualizarGrafico() {
   const dados = usuarios[usuarioLogado].dados || {};
   const labels = [];
   const valores = [];
@@ -442,7 +494,7 @@ function atualizarGrafico(){
     valores.push(dados[d].manha + dados[d].tarde + dados[d].noite - dados[d].extra);
   });
 
-  if(grafico) grafico.destroy();
+  if (grafico) grafico.destroy();
 
   grafico = new Chart(chart, {
     type: 'line',
@@ -452,38 +504,19 @@ function atualizarGrafico(){
         label: 'Lucro Diário',
         data: valores,
         borderColor: '#2ecc71',
-        backgroundColor: 'rgba(46,204,113,.2)',
-        tension: 0.3
+        backgroundColor: 'rgba(46,204,113,.25)',
+        tension: 0.4
       }]
     }
   });
 }
 
-/* ======================================================
-   EXPORTAÇÃO
-====================================================== */
-function exportExcel(){
-  const dados = usuarios[usuarioLogado].dados || {};
-  const planilha = Object.keys(dados).map(d => ({
-    Data: d,
-    Manhã: dados[d].manha,
-    Tarde: dados[d].tarde,
-    Noite: dados[d].noite,
-    Extras: dados[d].extra,
-    Total: dados[d].manha + dados[d].tarde + dados[d].noite - dados[d].extra
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(planilha);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Histórico');
-  XLSX.writeFile(wb, 'meta-uber.xlsx');
-}
-
-/* ======================================================
-   AUTO LOGIN
-====================================================== */
+/* ===================== AUTO LOGIN ===================== */
 const auto = localStorage.getItem('logado');
-if(auto){ usuarioLogado = auto; iniciarApp(); }
+if (auto && usuarios[auto]) {
+  usuarioLogado = auto;
+  iniciarApp();
+}
 </script>
 </body>
 </html>
