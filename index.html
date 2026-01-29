@@ -194,16 +194,37 @@ IMPORTANTE:
 <body>
 
 <!-- ======================================================
-     LOGIN
+     LOGIN / CADASTRO / RESET (CORRIGIDO)
 ====================================================== -->
 <div class="auth-container" id="auth">
-  <div class="auth-box">
+  <div class="auth-box" id="loginBox">
     <h2>🔐 Login</h2>
     <input id="loginUser" placeholder="Usuário">
     <input id="loginPass" type="password" placeholder="Senha">
     <button onclick="login()">Entrar</button>
-    <small onclick="resetSenha()">Esqueci a senha</small>
+    <button onclick="mostrarCadastro()">Cadastrar</button>
+    <small onclick="mostrarReset()">Esqueci a senha</small>
     <p id="authMsg"></p>
+  </div>
+
+  <div class="auth-box" id="cadastroBox" style="display:none">
+    <h2>📝 Cadastro</h2>
+    <input id="cadNome" placeholder="Nome completo">
+    <input id="cadUser" placeholder="Usuário">
+    <input id="cadEmail" placeholder="E-mail">
+    <input id="cadFone" placeholder="Celular">
+    <input id="cadPass" type="password" placeholder="Senha">
+    <button onclick="cadastrar()">Criar conta</button>
+    <small onclick="voltarLogin()">Voltar</small>
+    <p id="cadMsg"></p>
+  </div>
+
+  <div class="auth-box" id="resetBox" style="display:none">
+    <h2>♻️ Reset de senha</h2>
+    <input id="resetUser" placeholder="Usuário">
+    <button onclick="resetSenhaConfirmar()">Resetar para 9999</button>
+    <small onclick="voltarLogin()">Voltar</small>
+    <p id="resetMsg"></p>
   </div>
 </div>
 
